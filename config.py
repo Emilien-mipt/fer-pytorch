@@ -7,6 +7,8 @@ class CFG:
     TRAIN_CSV = "./FERplus_dataset/new_train.csv"
     VAL_PATH = "./FERplus_dataset/data/FER2013Valid/"
     VAL_CSV = "./FERplus_dataset/new_val.csv"
+    TEST_PATH = "./FERplus_dataset/data/FER2013Test/"
+    TEST_CSV = "./FERplus_dataset/new_test.csv"
     OUTPUT_DIR = "./logs"
 
     # Main config
@@ -21,7 +23,7 @@ class CFG:
     epochs = 50
     early_stopping = 10
     model_name = "resnet18"
-    batch_size = 4
+    batch_size = 32
     size = 48
     MEAN = [0.485, 0.456, 0.406]  # ImageNet values
     STD = [0.229, 0.224, 0.225]  # ImageNet values

@@ -14,7 +14,7 @@ from augmentations import get_transforms
 from config import CFG
 from model import CustomModel
 from train import train_fn, valid_fn
-from train_test_dataset import TrainDataset
+from train_test_dataset import FERDataset
 from utils.loss_functions import get_criterion
 from utils.utils import get_score, init_logger, save_batch, seed_torch, weight_class
 
@@ -61,7 +61,7 @@ def main():
     LOGGER.info("Reading data...")
     train_fold = pd.read_csv(CFG.TRAIN_CSV)
 
-    CLASS_NAMES = ["neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear", "contempt"]
+    CLASS_NAMES = ["neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear"]
     # weight_list = weight_class(train_df)
     # LOGGER.info(f"Weight list for classes: {weight_list}")
 
@@ -83,8 +83,8 @@ def main():
 
     device = torch.device(f"cuda:{CFG.GPU_ID}")
 
-    train_dataset = TrainDataset(train_fold, transform=get_transforms(data="train"))
-    valid_dataset = TrainDataset(valid_fold, transform=get_transforms(data="valid"))
+    train_dataset = FERDataset(train_fold, mode="train", transform=get_transforms(data="train"))
+    valid_dataset = FERDataset(valid_fold, mode = "valid", transform=get_transforms(data="valid"))
 
     train_loader = DataLoader(
         train_dataset,
