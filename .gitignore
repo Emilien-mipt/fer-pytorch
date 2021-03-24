@@ -1,2 +1,12 @@
 # data
 data/
+
+# py and mypy cache
+__pycache__/
+.mypy_cache/
+
+# notebook cache
+.ipynb_checkpoints/
+
+# weights
+weights/
