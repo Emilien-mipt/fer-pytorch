@@ -22,7 +22,7 @@ class CFG:
     debug = False
     epochs = 50
     early_stopping = 10
-    model_name = "resnext50_32x4d"
+    model_name = "resnext101_32x8d"
     batch_size = 32
     size = 48
     MEAN = [0.485, 0.456, 0.406]  # ImageNet values
