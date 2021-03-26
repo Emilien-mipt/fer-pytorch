@@ -11,12 +11,12 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "resnext101_32x8d"
+    OUTPUT_DIR = "efficientnet_b3a"
 
     # Model setup
-    chk = "./logs/resnext101_32x8d_baseline/weights/best.pt"
+    chk = "./logs/efficientnet_b3a_baseline/weights/best.pt"
     # chk = ""
-    model_name = "resnext101_32x8d"
+    model_name = "efficientnet_b3a"
     pretrained = True
 
     # Main config
