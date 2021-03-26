@@ -23,7 +23,6 @@ label
 5      32
 6      71
 dtype: int64
-Model name resnext50_32x4d
 Batch size 32
 Input size 48
 Select CrossEntropyLoss criterion
@@ -39,12 +38,12 @@ Epoch 2 - Accuracy: 0.7376027203173704 - F1-score 0.7233769123103647
 Epoch 2 - Save Best Accuracy: 0.7376 -                 Save Best F1-score: 0.7234 Model
 Number of bad epochs 0
 Current learning rate: 0.001
-Epoch 3 - avg_train_loss: 0.6199             avg_val_loss: 0.6455  time: 37s
+Epoch 3 - avg_train_loss: 0.6199             avg_val_loss: 0.6455  time: 38s
 Epoch 3 - Accuracy: 0.7801076792292434 - F1-score 0.7692280763761092
 Epoch 3 - Save Best Accuracy: 0.7801 -                 Save Best F1-score: 0.7692 Model
 Number of bad epochs 0
 Current learning rate: 0.001
-Epoch 4 - avg_train_loss: 0.5416             avg_val_loss: 0.6400  time: 38s
+Epoch 4 - avg_train_loss: 0.5416             avg_val_loss: 0.6400  time: 37s
 Epoch 4 - Accuracy: 0.7701898554831397 - F1-score 0.7468232918149266
 Number of bad epochs 1
 Current learning rate: 0.001
@@ -65,7 +64,7 @@ Epoch 8 - avg_train_loss: 0.3008             avg_val_loss: 0.7008  time: 37s
 Epoch 8 - Accuracy: 0.7750070841598187 - F1-score 0.7737426345043695
 Number of bad epochs 3
 Current learning rate: 0.001
-Epoch 9 - avg_train_loss: 0.3484             avg_val_loss: 0.6771  time: 37s
+Epoch 9 - avg_train_loss: 0.3484             avg_val_loss: 0.6771  time: 38s
 Epoch 9 - Accuracy: 0.7684896571266647 - F1-score 0.762752178591648
 Number of bad epochs 4
 Current learning rate: 0.001
@@ -161,7 +160,7 @@ Epoch 31 - avg_train_loss: 0.0729             avg_val_loss: 1.0783  time: 37s
 Epoch 31 - Accuracy: 0.7826579767639558 - F1-score 0.7815412964330325
 Number of bad epochs 6
 Current learning rate: 0.001
-Epoch 32 - avg_train_loss: 0.0634             avg_val_loss: 1.1987  time: 38s
+Epoch 32 - avg_train_loss: 0.0634             avg_val_loss: 1.1987  time: 37s
 Epoch 32 - Accuracy: 0.7809577784074808 - F1-score 0.7779086023700378
 Number of bad epochs 7
 Current learning rate: 0.001
@@ -173,7 +172,7 @@ Epoch 34 - avg_train_loss: 0.0596             avg_val_loss: 1.2501  time: 37s
 Epoch 34 - Accuracy: 0.7713233210541229 - F1-score 0.7671707293244069
 Number of bad epochs 9
 Current learning rate: 0.001
-Epoch 35 - avg_train_loss: 0.0601             avg_val_loss: 1.1788  time: 37s
+Epoch 35 - avg_train_loss: 0.0601             avg_val_loss: 1.1788  time: 38s
 Epoch 35 - Accuracy: 0.7679229243411732 - F1-score 0.7691407302670037
 Number of bad epochs 10
 Current learning rate: 0.001

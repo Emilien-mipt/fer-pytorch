@@ -12,7 +12,7 @@ from torch_lr_finder import LRFinder
 
 from augmentations import get_transforms
 from config import CFG
-from model import CustomModel
+from model import get_model, save_model
 from train import train_fn, valid_fn
 from train_test_dataset import FERDataset
 from utils.loss_functions import get_criterion
@@ -20,7 +20,9 @@ from utils.utils import get_score, init_logger, save_batch, seed_torch, weight_c
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Parse the argument to define the train log dir name")
+    parser = argparse.ArgumentParser(
+        description="Define whether to save train batch figs or find optimal learning rate"
+    )
     parser.add_argument(
         "--logdir_name",
         type=str,
@@ -38,17 +40,16 @@ def main():
     )
 
     args = parser.parse_args()
-    log_dir_name = args.logdir_name
     save_single_batch = args.save_batch_fig
     find_lr = args.find_lr
 
     # Path to log
-    logger_path = os.path.join(CFG.OUTPUT_DIR, log_dir_name)
+    logger_path = os.path.join(CFG.LOG_DIR, CFG.OUTPUT_DIR)
 
     # Create dir for saving logs and weights
-    print(f"Creating dir {log_dir_name} for saving logs")
+    print(f"Creating dir {CFG.OUTPUT_DIR} for saving logs")
     os.makedirs(os.path.join(logger_path, "weights"))
-    print(f"Dir {log_dir_name} has been created!")
+    print(f"Dir {CFG.OUTPUT_DIR} has been created!")
 
     # Define logger to save train logs
     LOGGER = init_logger(os.path.join(logger_path, "train.log"))
@@ -84,7 +85,7 @@ def main():
     device = torch.device(f"cuda:{CFG.GPU_ID}")
 
     train_dataset = FERDataset(train_fold, mode="train", transform=get_transforms(data="train"))
-    valid_dataset = FERDataset(valid_fold, mode = "valid", transform=get_transforms(data="valid"))
+    valid_dataset = FERDataset(valid_fold, mode="valid", transform=get_transforms(data="valid"))
 
     train_loader = DataLoader(
         train_dataset,
@@ -115,10 +116,9 @@ def main():
     # ====================================================
     # model & optimizer
     # ====================================================
-    model = CustomModel(CFG.model_name, pretrained=True)
+    model = get_model(CFG)
     model.to(device)
 
-    LOGGER.info(f"Model name {CFG.model_name}")
     LOGGER.info(f"Batch size {CFG.batch_size}")
     LOGGER.info(f"Input size {CFG.size}")
 
@@ -206,14 +206,7 @@ def main():
                 f"Epoch {epoch+1} - Save Best Accuracy: {best_acc_score:.4f} - \
                 Save Best F1-score: {best_f1_score:.4f} Model"
             )
-            torch.save(
-                {"model": model.state_dict(), "preds": val_preds},
-                os.path.join(
-                    logger_path,
-                    "weights",
-                    "best.pth",
-                ),
-            )
+            save_model(model, epoch + 1, avg_train_loss, avg_val_loss, val_f1_score, optimizer, "best.pt")
             best_epoch = epoch + 1
             count_bad_epochs = 0
         else:
@@ -223,24 +216,26 @@ def main():
         # Early stopping
         if count_bad_epochs > CFG.early_stopping:
             LOGGER.info(f"Stop the training, since the score has not improved for {CFG.early_stopping} epochs!")
-            torch.save(
-                {"model": model.state_dict(), "preds": val_preds},
-                os.path.join(
-                    logger_path,
-                    "weights",
-                    f"{CFG.model_name}_epoch{epoch+1}_last.pth",
-                ),
+            save_model(
+                model,
+                epoch + 1,
+                avg_train_loss,
+                avg_val_loss,
+                val_f1_score,
+                optimizer,
+                f"{CFG.model_name}_epoch{epoch+1}_last.pth",
             )
             break
         elif epoch + 1 == CFG.epochs:
             LOGGER.info(f"Reached the final {epoch+1} epoch!")
-            torch.save(
-                {"model": model.state_dict(), "preds": val_preds},
-                os.path.join(
-                    logger_path,
-                    "weights",
-                    f"{CFG.model_name}_epoch{epoch+1}_final.pth",
-                ),
+            save_model(
+                model,
+                epoch + 1,
+                avg_train_loss,
+                avg_val_loss,
+                val_f1_score,
+                optimizer,
+                f"{CFG.model_name}_epoch{epoch+1}_final.pth",
             )
 
     LOGGER.info(
