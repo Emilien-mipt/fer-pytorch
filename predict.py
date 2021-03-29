@@ -45,7 +45,7 @@ def predict(test_fold, model, device):
 
 def main():
     model = get_model(CFG)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device(f"cuda:{CFG.GPU_ID}" if torch.cuda.is_available() else "cpu")
     print(device)
     model.to(device)
     model.eval()

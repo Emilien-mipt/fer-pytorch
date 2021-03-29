@@ -11,16 +11,16 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "densenet121_baseline"
+    OUTPUT_DIR = "mobilenetv3_large_100_baseline"
 
     # Model setup
-    chk = "./logs/densenet121_baseline/weights/best.pt"
+    chk = "./logs/mobilenetv3_large_100_baseline/weights/best.pt"
     # chk = ""
-    model_name = "densenet121"
+    model_name = "mobilenetv3_large_100"
     pretrained = True
 
     # Main config
-    GPU_ID = 0
+    GPU_ID = 1
     seed = 42
     target_size = 7
     target_col = "label"
