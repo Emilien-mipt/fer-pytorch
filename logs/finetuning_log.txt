@@ -1,0 +1,41 @@
+Baseline settings:
+Batch size = 32
+Input size = 48
+Optimizer: Adam, lr=1e-3
+Cross Entropy loss
+
+# Architecture search
+Models:
+ResNet18:
+Best F1-score = 0.7716
+Test F1-score = 0.7538
+
+ResNet34:
+Best F1-score = 0.7841
+Test F1-score = 0.7740
+
+ResNet50:
+Best F1-score = 0.7793
+Test F1-score = 0.7645
+
+ResNext50_32x4d
+Best F1-score = 0.7960
+Test F1 score = 0.7748
+
+ResNext101_32x8d
+Best F1-score = 0.7770
+Test F1 score = 0.7600
+
+Efficientnet_b3a
+Best F1-score = 0.7878
+Test F1 score = 0.7732
+
+Densenet121 baseline
+Best F1-score = 0.7929
+Test F1 score = 0.7695
+
+MobileNetv3 baseline
+Best F1-score = 0.0.7637
+Test F1 score = 0.7401
+
+Select ResNet34

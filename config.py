@@ -9,10 +9,18 @@ class CFG:
     VAL_CSV = "./FERplus_dataset/new_val.csv"
     TEST_PATH = "./FERplus_dataset/data/FER2013Test/"
     TEST_CSV = "./FERplus_dataset/new_test.csv"
-    OUTPUT_DIR = "./logs"
+    # Logging
+    LOG_DIR = "./logs"
+    OUTPUT_DIR = "mobilenetv3_large_100_baseline"
+
+    # Model setup
+    chk = "./logs/mobilenetv3_large_100_baseline/weights/best.pt"
+    # chk = ""
+    model_name = "mobilenetv3_large_100"
+    pretrained = True
 
     # Main config
-    GPU_ID = 0
+    GPU_ID = 1
     seed = 42
     target_size = 7
     target_col = "label"
@@ -22,7 +30,6 @@ class CFG:
     debug = False
     epochs = 50
     early_stopping = 10
-    model_name = "resnet18"
     batch_size = 32
     size = 48
     MEAN = [0.485, 0.456, 0.406]  # ImageNet values
@@ -62,9 +69,3 @@ class CFG:
     # criterion = "SymmetricCrossEntropyLoss"
     alpha = 0.1
     beta = 1.0
-
-
-if CFG.debug:
-    CFG.epochs = 1
-    train_pd = pd.read_csv("../input/cassava-leaf-disease-classification/train.csv")
-    train = train_pd.sample(n=1000, random_state=CFG.seed).reset_index(drop=True)
