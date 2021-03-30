@@ -24,11 +24,6 @@ def main():
         description="Define whether to save train batch figs or find optimal learning rate"
     )
     parser.add_argument(
-        "--logdir_name",
-        type=str,
-        help="Name of the dir to save train logs",
-    )
-    parser.add_argument(
         "--save_batch_fig",
         action="store_true",
         help="Whether to save a sample of a batch or not",

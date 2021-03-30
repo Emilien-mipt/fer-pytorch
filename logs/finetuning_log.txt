@@ -35,7 +35,11 @@ Best F1-score = 0.7929
 Test F1 score = 0.7695
 
 MobileNetv3 baseline
-Best F1-score = 0.0.7637
+Best F1-score = 0.7637
 Test F1 score = 0.7401
 
 Select ResNet34
+
+Add base augs: Horizontal Flip + Rotate + RandomBrightnessContrast
+Best F1-score = 0.8033
+Test F1 score = 0.7960

@@ -11,12 +11,12 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "mobilenetv3_large_100_baseline"
+    OUTPUT_DIR = "TEST"
 
     # Model setup
-    chk = "./logs/mobilenetv3_large_100_baseline/weights/best.pt"
-    # chk = ""
-    model_name = "mobilenetv3_large_100"
+    # chk = "./logs/resnet34_baseline+baseaugs/weights/best.pt"
+    chk = ""
+    model_name = "resnet34"
     pretrained = True
 
     # Main config
