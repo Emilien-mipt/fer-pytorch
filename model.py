@@ -28,19 +28,21 @@ def get_model(cfg):
         model = timm.create_model(cfg.model_name, pretrained=False)
         # Changing the last layer according the number of classes
         lastlayer = list(model._modules)[-1]
+        new_layer = nn.Sequential(
+            nn.Dropout(p=0.4),
+            nn.Linear(in_features=getattr(model, lastlayer).in_features, out_features=cfg.target_size, bias=True),
+        )
         try:
             setattr(
                 model,
                 lastlayer,
-                nn.Linear(in_features=getattr(model, lastlayer).in_features, out_features=cfg.target_size, bias=True),
+                new_layer,
             )
         except AttributeError:
             setattr(
                 model,
                 lastlayer,
-                nn.Linear(
-                    in_features=getattr(model, lastlayer)[1].in_features, out_features=cfg.target_size, bias=True
-                ),
+                new_layer,
             )
         cp = torch.load(cfg.chk)
         epoch, train_loss, val_loss, metric_loss = None, None, None, None
@@ -72,18 +74,20 @@ def get_model(cfg):
         model = timm.create_model(cfg.model_name, pretrained=cfg.pretrained)
         # Changing the last layer according the number of classes
         lastlayer = list(model._modules)[-1]
+        new_layer = nn.Sequential(
+            nn.Dropout(p=0.4),
+            nn.Linear(in_features=getattr(model, lastlayer).in_features, out_features=cfg.target_size, bias=True),
+        )
         try:
             setattr(
                 model,
                 lastlayer,
-                nn.Linear(in_features=getattr(model, lastlayer).in_features, out_features=cfg.target_size, bias=True),
+                new_layer,
             )
         except AttributeError:
             setattr(
                 model,
                 lastlayer,
-                nn.Linear(
-                    in_features=getattr(model, lastlayer)[1].in_features, out_features=cfg.target_size, bias=True
-                ),
+                new_layer,
             )
     return model

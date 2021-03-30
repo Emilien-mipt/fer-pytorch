@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 
 
@@ -11,11 +13,11 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "TEST"
+    OUTPUT_DIR = "resnet34_baseline+baseaugs+dropout04"
 
     # Model setup
-    # chk = "./logs/resnet34_baseline+baseaugs/weights/best.pt"
-    chk = ""
+    chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
+    # chk = ""
     model_name = "resnet34"
     pretrained = True
 
