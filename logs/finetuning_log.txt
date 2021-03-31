@@ -73,10 +73,19 @@ Size = 128
 Best F1-score = 0.8345
 Test F1 score = 0.8128
 
-Size = 224
+Size = 224 (New baseline)
 Best F1-score = 0.8332
 Test F1 score = 0.8318
 
 Size = 512
 Best F1-score = 0.8361
 Test F1 score = 0.8241
+
+Tune batch size:
+batch size = 64
+Best F1-score = 0.8399
+Test F1 score = 0.8283
+
+batch size = 16
+Best F1-score = 0.8377
+Test F1 score = 0.8309
