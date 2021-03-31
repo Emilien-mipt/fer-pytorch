@@ -13,7 +13,7 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "resnet34_baseline+baseaugs+dropout07"
+    OUTPUT_DIR = "resnet34_baseline+baseaugs"
 
     # Model setup
     chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
