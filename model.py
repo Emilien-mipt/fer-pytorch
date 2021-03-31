@@ -29,7 +29,7 @@ def get_model(cfg):
         # Changing the last layer according the number of classes
         lastlayer = list(model._modules)[-1]
         new_layer = nn.Sequential(
-            nn.Dropout(p=0.4),
+            nn.Dropout(p=0.7),
             nn.Linear(in_features=getattr(model, lastlayer).in_features, out_features=cfg.target_size, bias=True),
         )
         try:
@@ -75,7 +75,7 @@ def get_model(cfg):
         # Changing the last layer according the number of classes
         lastlayer = list(model._modules)[-1]
         new_layer = nn.Sequential(
-            nn.Dropout(p=0.4),
+            nn.Dropout(p=0.7),
             nn.Linear(in_features=getattr(model, lastlayer).in_features, out_features=cfg.target_size, bias=True),
         )
         try:

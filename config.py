@@ -13,7 +13,7 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "resnet34_baseline+baseaugs+dropout04"
+    OUTPUT_DIR = "resnet34_baseline+baseaugs+dropout07"
 
     # Model setup
     chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
@@ -22,7 +22,7 @@ class CFG:
     pretrained = True
 
     # Main config
-    GPU_ID = 1
+    GPU_ID = 0
     seed = 42
     target_size = 7
     target_col = "label"

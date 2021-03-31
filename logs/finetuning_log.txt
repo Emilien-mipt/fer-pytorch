@@ -41,18 +41,22 @@ Test F1 score = 0.7401
 Select ResNet34
 
 Add base augs: Horizontal Flip + Rotate + RandomBrightnessContrast
-Best F1-score = 0.8033
-Test F1 score = 0.7960
+Best F1-score = 0.8082
+Test F1 score = 0.7915
 
 Add DropOut:
 p=0.5 (default)
-Best F1-score = 0.8033
-Test F1 score = 0.7950
+Best F1-score = 0.8039
+Test F1 score = 0.7936
 
 p=0.6
-Best F1-score = 0.8113
-Test F1 score = 0.7953
+Best F1-score = 0.8106
+Test F1 score = 0.7971
+
+p=0.7
+Best F1-score = 0.8140
+Test F1 score = 0.7951
 
 p=0.4
-Best F1-score = 0.8033
-Test F1 score = 0.7900
+Best F1-score = 0.8091
+Test F1 score = 0.7922
