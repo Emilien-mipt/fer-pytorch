@@ -13,7 +13,7 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "resnet34_baseline+baseaugs"
+    OUTPUT_DIR = "resnet34_baseline+baseaugs_size-512"
 
     # Model setup
     chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
@@ -33,7 +33,7 @@ class CFG:
     epochs = 50
     early_stopping = 10
     batch_size = 32
-    size = 48
+    size = 512
     MEAN = [0.485, 0.456, 0.406]  # ImageNet values
     STD = [0.229, 0.224, 0.225]  # ImageNet values
     num_workers = 8

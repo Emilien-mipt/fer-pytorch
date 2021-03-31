@@ -60,3 +60,23 @@ Test F1 score = 0.7951
 p=0.4
 Best F1-score = 0.8091
 Test F1 score = 0.7922
+
+New baseline:
+ResNet34 + baseaugs (Horizontal Flip + Rotate + RandomBrightnessContrast)
+
+Tune input size:
+Size = 64
+Best F1-score = 0.8151
+Test F1 score = 0.7988
+
+Size = 128
+Best F1-score = 0.8345
+Test F1 score = 0.8128
+
+Size = 224
+Best F1-score = 0.8332
+Test F1 score = 0.8318
+
+Size = 512
+Best F1-score = 0.8361
+Test F1 score = 0.8241
