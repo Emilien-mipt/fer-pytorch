@@ -13,11 +13,11 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "resnet34_SGD_baseline"
+    OUTPUT_DIR = "resnet34_SGD_baseline_findlr"
 
     # Model setup
-    chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
-    # chk = ""
+    # chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
+    chk = ""
     model_name = "resnet34"
     pretrained = True
 
@@ -40,9 +40,9 @@ class CFG:
     print_freq = 100
 
     # Optimizer config
-    lr = 1e-3
+    lr = 2e-2
     momentum = 0.9
-    min_lr = 1e-3
+    min_lr = 1e-2
     weight_decay = 1e-6
     gradient_accumulation_steps = 1
     max_grad_norm = 1000

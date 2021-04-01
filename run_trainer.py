@@ -119,9 +119,9 @@ def main():
 
     # optimizer = Adam(model.parameters(), lr=CFG.lr)
     optimizer = SGD(model.parameters(), lr=CFG.lr, momentum=CFG.momentum)
-    # scheduler = torch.optim.lr_scheduler.CyclicLR(
-    #    optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=2138
-    # )
+    scheduler = torch.optim.lr_scheduler.CyclicLR(
+        optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=1762
+    )
 
     # ====================================================
     # loop
@@ -132,7 +132,7 @@ def main():
     if find_lr:
         print("Finding oprimal learning rate...")
         # Add this line before running `LRFinder`
-        lr_finder = LRFinder(model, optimizer, criterion, device="cuda", log_path=logger_path)
+        lr_finder = LRFinder(model, optimizer, criterion, device="cuda")
         lr_finder.range_test(train_loader, end_lr=100, num_iter=100)
         lr_finder.plot()  # to inspect the loss-learning rate graph
         lr_finder.reset()  # to reset the model and optimizer to their initial state
@@ -166,7 +166,7 @@ def main():
         val_f1_score = get_score(valid_labels, val_preds.argmax(1), metric="f1_score")
 
         cur_lr = optimizer.param_groups[0]["lr"]
-        # scheduler.step(val_acc_score)
+        scheduler.step(val_f1_score)
         LOGGER.info(f"Current learning rate: {cur_lr}")
 
         tb.add_scalar("Learning rate", cur_lr, epoch + 1)
