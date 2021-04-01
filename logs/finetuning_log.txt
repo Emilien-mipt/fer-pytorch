@@ -89,3 +89,8 @@ Test F1 score = 0.8283
 batch size = 16
 Best F1-score = 0.8377
 Test F1 score = 0.8309
+
+Tune optimizer:
+Try SGD with momentum baseline (bs=32, input size=224)
+Best F1-score = 0.8393
+Test F1 score = 0.8271

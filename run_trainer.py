@@ -117,8 +117,8 @@ def main():
     LOGGER.info(f"Batch size {CFG.batch_size}")
     LOGGER.info(f"Input size {CFG.size}")
 
-    optimizer = Adam(model.parameters(), lr=CFG.lr)
-    # optimizer = SGD(model.parameters(), lr=CFG.lr, momentum=CFG.momentum, weight_decay=CFG.weight_decay)
+    # optimizer = Adam(model.parameters(), lr=CFG.lr)
+    optimizer = SGD(model.parameters(), lr=CFG.lr, momentum=CFG.momentum)
     # scheduler = torch.optim.lr_scheduler.CyclicLR(
     #    optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=2138
     # )
