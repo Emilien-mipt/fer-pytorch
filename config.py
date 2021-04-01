@@ -13,11 +13,11 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "resnet34_SGD_baseline_findlr"
+    OUTPUT_DIR = "resnet34_SGD_baseline_cyclic-schedule_weightdecay-1e-5"
 
     # Model setup
-    # chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
-    chk = ""
+    chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
+    # chk = ""
     model_name = "resnet34"
     pretrained = True
 
@@ -43,7 +43,7 @@ class CFG:
     lr = 2e-2
     momentum = 0.9
     min_lr = 1e-2
-    weight_decay = 1e-6
+    weight_decay = 1e-5
     gradient_accumulation_steps = 1
     max_grad_norm = 1000
 

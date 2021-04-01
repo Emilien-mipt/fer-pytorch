@@ -118,7 +118,7 @@ def main():
     LOGGER.info(f"Input size {CFG.size}")
 
     # optimizer = Adam(model.parameters(), lr=CFG.lr)
-    optimizer = SGD(model.parameters(), lr=CFG.lr, momentum=CFG.momentum)
+    optimizer = SGD(model.parameters(), lr=CFG.lr, momentum=CFG.momentum, weight_decay=CFG.weight_decay)
     scheduler = torch.optim.lr_scheduler.CyclicLR(
         optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=1762
     )
@@ -155,7 +155,9 @@ def main():
         start_time = time.time()
 
         # train
-        avg_train_loss, train_acc = train_fn(train_loader, model, criterion, optimizer, scaler, epoch, device)
+        avg_train_loss, train_acc = train_fn(
+            train_loader, model, criterion, optimizer, scaler, epoch, device, scheduler
+        )
 
         # eval
         avg_val_loss, val_preds = valid_fn(valid_loader, model, criterion, device)
@@ -166,7 +168,6 @@ def main():
         val_f1_score = get_score(valid_labels, val_preds.argmax(1), metric="f1_score")
 
         cur_lr = optimizer.param_groups[0]["lr"]
-        scheduler.step(val_f1_score)
         LOGGER.info(f"Current learning rate: {cur_lr}")
 
         tb.add_scalar("Learning rate", cur_lr, epoch + 1)

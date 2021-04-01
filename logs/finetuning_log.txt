@@ -94,3 +94,20 @@ Tune optimizer:
 Try SGD with momentum baseline (bs=32, input size=224)
 Best F1-score = 0.8393
 Test F1 score = 0.8271
+
+Apply Cyclic scheduler
+Best F1-score = 0.8449
+Test F1 score = 0.83
+
+Tune weight decay:
+wd=1e-4
+Best F1-score = 0.8423
+Test F1 score = 0.8299
+
+wd=1e-5
+Best F1-score = 0.8467
+Test F1 score = 0.8326
+
+New baseline:
+ResNet34 + baseaugs (Horizontal Flip + Rotate + RandomBrightnessContrast)
++ SGD with momentum and weight decay=1e-5 + Cyclic LR scheduler (with triangular2 mode)

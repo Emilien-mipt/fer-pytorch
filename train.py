@@ -43,13 +43,10 @@ def train_fn(train_loader, model, criterion, optimizer, scaler, epoch, device, s
         else:
             y_preds = model(images)
             loss = criterion(y_preds, labels)
-
             # Compute gradients and do step
             loss.backward()
             optimizer.step()
-        # print("Current LR:", optimizer.param_groups[0]["lr"])
         if scheduler is not None:
-            # scheduler.step()
             scheduler.step()
 
         # record loss
