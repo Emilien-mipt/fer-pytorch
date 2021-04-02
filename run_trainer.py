@@ -16,7 +16,6 @@ from config import CFG
 from model import get_model, save_model
 from train import train_fn, valid_fn
 from train_test_dataset import FERDataset
-from utils.loss_functions import get_criterion
 from utils.utils import get_score, init_logger, save_batch, seed_torch, weight_class
 
 
@@ -59,8 +58,6 @@ def main():
     train_fold = pd.read_csv(CFG.TRAIN_CSV)
 
     CLASS_NAMES = ["neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear"]
-    weight_list = weight_class(train_fold)
-    LOGGER.info(f"Weight list for classes: {weight_list}")
 
     LOGGER.info("train shape: ")
     LOGGER.info(train_fold.shape)
@@ -127,9 +124,8 @@ def main():
     # ====================================================
     # loop
     # ====================================================
-    weight_tensor = torch.FloatTensor(weight_list).to(device)  # Tensor with weights for classes
-    criterion = nn.CrossEntropyLoss(weight=weight_tensor)
-    LOGGER.info(f"Select {CFG.criterion} criterion")
+    criterion = nn.CrossEntropyLoss()
+    LOGGER.info("Select CrossEntropyLoss criterion")
 
     if find_lr:
         print("Finding oprimal learning rate...")

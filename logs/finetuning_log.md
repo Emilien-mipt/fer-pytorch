@@ -124,3 +124,6 @@ Test f1 score = 0.8178
 * imput size = 224
 * Optimizer and scheduler: SGD with momentum=0.9 and weight decay=1e-5
 * Cyclic schedulr with triangular2 mode and min_lr=1e-2, max_lr=2e-2
+
+Best F1-score = 0.8467
+Test F1 score = 0.8326
