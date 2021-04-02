@@ -4,6 +4,7 @@ import time
 
 import pandas as pd
 import torch
+import torch.nn as nn
 from sklearn.model_selection import train_test_split
 from torch.optim import SGD, Adam
 from torch.utils.data import DataLoader
@@ -58,8 +59,8 @@ def main():
     train_fold = pd.read_csv(CFG.TRAIN_CSV)
 
     CLASS_NAMES = ["neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear"]
-    # weight_list = weight_class(train_df)
-    # LOGGER.info(f"Weight list for classes: {weight_list}")
+    weight_list = weight_class(train_fold)
+    LOGGER.info(f"Weight list for classes: {weight_list}")
 
     LOGGER.info("train shape: ")
     LOGGER.info(train_fold.shape)
@@ -126,7 +127,8 @@ def main():
     # ====================================================
     # loop
     # ====================================================
-    criterion = get_criterion()
+    weight_tensor = torch.FloatTensor(weight_list).to(device)  # Tensor with weights for classes
+    criterion = nn.CrossEntropyLoss(weight=weight_tensor)
     LOGGER.info(f"Select {CFG.criterion} criterion")
 
     if find_lr:

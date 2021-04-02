@@ -108,6 +108,10 @@ wd=1e-5
 Best F1-score = 0.8467
 Test F1 score = 0.8326
 
-New baseline:
-ResNet34 + baseaugs (Horizontal Flip + Rotate + RandomBrightnessContrast)
-+ SGD with momentum and weight decay=1e-5 + Cyclic LR scheduler (with triangular2 mode)
+Add CutOut aug + CoarseDropOut
+Best F1-score = 0.8412
+Test f1 score = 0.8316
+
+Add weights to CE Loss:
+Best F1-score = 0.8343
+Test f1 score = 0.8178

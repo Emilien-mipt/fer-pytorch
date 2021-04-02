@@ -13,7 +13,7 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "resnet34_SGD_baseline_cyclic-schedule_weightdecay-1e-5"
+    OUTPUT_DIR = "resnet34_newbaseline_weight-classes"
 
     # Model setup
     chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
