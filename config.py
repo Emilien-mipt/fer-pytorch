@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 
 
@@ -9,7 +11,15 @@ class CFG:
     VAL_CSV = "./FERplus_dataset/new_val.csv"
     TEST_PATH = "./FERplus_dataset/data/FER2013Test/"
     TEST_CSV = "./FERplus_dataset/new_test.csv"
-    OUTPUT_DIR = "./logs"
+    # Logging
+    LOG_DIR = "./logs"
+    OUTPUT_DIR = "resnet34_newbaseline_weight-classes"
+
+    # Model setup
+    chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
+    # chk = ""
+    model_name = "resnet34"
+    pretrained = True
 
     # Main config
     GPU_ID = 0
@@ -22,19 +32,18 @@ class CFG:
     debug = False
     epochs = 50
     early_stopping = 10
-    model_name = "resnet18"
     batch_size = 32
-    size = 48
+    size = 224
     MEAN = [0.485, 0.456, 0.406]  # ImageNet values
     STD = [0.229, 0.224, 0.225]  # ImageNet values
     num_workers = 8
     print_freq = 100
 
     # Optimizer config
-    lr = 1e-3
+    lr = 2e-2
     momentum = 0.9
-    min_lr = 1e-3
-    weight_decay = 1e-6
+    min_lr = 1e-2
+    weight_decay = 1e-5
     gradient_accumulation_steps = 1
     max_grad_norm = 1000
 
@@ -62,9 +71,3 @@ class CFG:
     # criterion = "SymmetricCrossEntropyLoss"
     alpha = 0.1
     beta = 1.0
-
-
-if CFG.debug:
-    CFG.epochs = 1
-    train_pd = pd.read_csv("../input/cassava-leaf-disease-classification/train.csv")
-    train = train_pd.sample(n=1000, random_state=CFG.seed).reset_index(drop=True)

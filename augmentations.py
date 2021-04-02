@@ -1,17 +1,10 @@
 from albumentations import (
-    CenterCrop,
-    CoarseDropout,
     Compose,
-    Cutout,
     HorizontalFlip,
     Normalize,
     RandomBrightnessContrast,
-    RandomResizedCrop,
-    RandomRotate90,
     Resize,
-    ShiftScaleRotate,
-    Transpose,
-    VerticalFlip,
+    Rotate,
 )
 from albumentations.pytorch import ToTensorV2
 
@@ -26,7 +19,12 @@ def get_transforms(*, data):
     if data == "train":
         return Compose(
             [
-                Resize(CFG.size, CFG.size, p=1.0),
+                Resize(CFG.size, CFG.size),
+                HorizontalFlip(p=0.5),
+                Rotate(p=0.5, limit=(-30, 30)),
+                RandomBrightnessContrast(
+                    p=0.5, brightness_limit=(-0.1, 0.1), contrast_limit=(-0.1, 0.1), brightness_by_max=False
+                ),
                 Normalize(
                     mean=CFG.MEAN,
                     std=CFG.STD,

@@ -1,0 +1,37 @@
+Reading data...
+train shape:
+(28217, 2)
+valid shape:
+(3529, 2)
+train fold:
+label
+0    10295
+1     7526
+2     3557
+3     3530
+4     2463
+5      191
+6      655
+dtype: int64
+validation fold:
+label
+0    1329
+1     899
+2     458
+3     415
+4     325
+5      32
+6      71
+dtype: int64
+Batch size 32
+Input size 224
+Select CrossEntropyLoss criterion
+
+Finding oprimal learning rate...
+ 83%|█████████████████████████████████████████████████▊          | 83/100 [00:08<00:01, 10.59it/s]Stopping early, the loss has diverged
+ 84%|██████████████████████████████████████████████████▍         | 84/100 [00:08<00:01,  9.68it/s]
+Learning rate search finished. See the graph with {finder_name}.plot()
+LR suggestion: steepest gradient
+Suggested LR: 1.02E-02
+
+Enabling mixed precision for training...

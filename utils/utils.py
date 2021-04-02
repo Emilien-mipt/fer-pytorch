@@ -9,6 +9,8 @@ import numpy as np
 import torch
 from sklearn.metrics import accuracy_score, f1_score
 
+from config import CFG
+
 
 def get_score(y_true, y_pred, metric):
     if metric == "accuracy":
@@ -95,7 +97,7 @@ def save_batch(dataloader, class_names, fig_path, config):
 
 
 def weight_class(data_df):
-    class_labels = [i for i in range(5)]
+    class_labels = [i for i in range(CFG.target_size)]
     count_classes = []
     for class_n in class_labels:
         count_class = data_df[data_df["label"] == class_n].shape[0]

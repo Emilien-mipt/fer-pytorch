@@ -4,6 +4,7 @@ import time
 
 import pandas as pd
 import torch
+import torch.nn as nn
 from sklearn.model_selection import train_test_split
 from torch.optim import SGD, Adam
 from torch.utils.data import DataLoader
@@ -12,7 +13,7 @@ from torch_lr_finder import LRFinder
 
 from augmentations import get_transforms
 from config import CFG
-from model import CustomModel
+from model import get_model, save_model
 from train import train_fn, valid_fn
 from train_test_dataset import FERDataset
 from utils.loss_functions import get_criterion
@@ -20,11 +21,8 @@ from utils.utils import get_score, init_logger, save_batch, seed_torch, weight_c
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Parse the argument to define the train log dir name")
-    parser.add_argument(
-        "--logdir_name",
-        type=str,
-        help="Name of the dir to save train logs",
+    parser = argparse.ArgumentParser(
+        description="Define whether to save train batch figs or find optimal learning rate"
     )
     parser.add_argument(
         "--save_batch_fig",
@@ -38,17 +36,16 @@ def main():
     )
 
     args = parser.parse_args()
-    log_dir_name = args.logdir_name
     save_single_batch = args.save_batch_fig
     find_lr = args.find_lr
 
     # Path to log
-    logger_path = os.path.join(CFG.OUTPUT_DIR, log_dir_name)
+    logger_path = os.path.join(CFG.LOG_DIR, CFG.OUTPUT_DIR)
 
     # Create dir for saving logs and weights
-    print(f"Creating dir {log_dir_name} for saving logs")
+    print(f"Creating dir {CFG.OUTPUT_DIR} for saving logs")
     os.makedirs(os.path.join(logger_path, "weights"))
-    print(f"Dir {log_dir_name} has been created!")
+    print(f"Dir {CFG.OUTPUT_DIR} has been created!")
 
     # Define logger to save train logs
     LOGGER = init_logger(os.path.join(logger_path, "train.log"))
@@ -62,8 +59,8 @@ def main():
     train_fold = pd.read_csv(CFG.TRAIN_CSV)
 
     CLASS_NAMES = ["neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear"]
-    # weight_list = weight_class(train_df)
-    # LOGGER.info(f"Weight list for classes: {weight_list}")
+    weight_list = weight_class(train_fold)
+    LOGGER.info(f"Weight list for classes: {weight_list}")
 
     LOGGER.info("train shape: ")
     LOGGER.info(train_fold.shape)
@@ -84,7 +81,7 @@ def main():
     device = torch.device(f"cuda:{CFG.GPU_ID}")
 
     train_dataset = FERDataset(train_fold, mode="train", transform=get_transforms(data="train"))
-    valid_dataset = FERDataset(valid_fold, mode = "valid", transform=get_transforms(data="valid"))
+    valid_dataset = FERDataset(valid_fold, mode="valid", transform=get_transforms(data="valid"))
 
     train_loader = DataLoader(
         train_dataset,
@@ -115,29 +112,29 @@ def main():
     # ====================================================
     # model & optimizer
     # ====================================================
-    model = CustomModel(CFG.model_name, pretrained=True)
+    model = get_model(CFG)
     model.to(device)
 
-    LOGGER.info(f"Model name {CFG.model_name}")
     LOGGER.info(f"Batch size {CFG.batch_size}")
     LOGGER.info(f"Input size {CFG.size}")
 
-    optimizer = Adam(model.parameters(), lr=CFG.lr)
-    # optimizer = SGD(model.parameters(), lr=CFG.lr, momentum=CFG.momentum, weight_decay=CFG.weight_decay)
-    # scheduler = torch.optim.lr_scheduler.CyclicLR(
-    #    optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=2138
-    # )
+    # optimizer = Adam(model.parameters(), lr=CFG.lr)
+    optimizer = SGD(model.parameters(), lr=CFG.lr, momentum=CFG.momentum, weight_decay=CFG.weight_decay)
+    scheduler = torch.optim.lr_scheduler.CyclicLR(
+        optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=1762
+    )
 
     # ====================================================
     # loop
     # ====================================================
-    criterion = get_criterion()
+    weight_tensor = torch.FloatTensor(weight_list).to(device)  # Tensor with weights for classes
+    criterion = nn.CrossEntropyLoss(weight=weight_tensor)
     LOGGER.info(f"Select {CFG.criterion} criterion")
 
     if find_lr:
         print("Finding oprimal learning rate...")
         # Add this line before running `LRFinder`
-        lr_finder = LRFinder(model, optimizer, criterion, device="cuda", log_path=logger_path)
+        lr_finder = LRFinder(model, optimizer, criterion, device="cuda")
         lr_finder.range_test(train_loader, end_lr=100, num_iter=100)
         lr_finder.plot()  # to inspect the loss-learning rate graph
         lr_finder.reset()  # to reset the model and optimizer to their initial state
@@ -160,7 +157,9 @@ def main():
         start_time = time.time()
 
         # train
-        avg_train_loss, train_acc = train_fn(train_loader, model, criterion, optimizer, scaler, epoch, device)
+        avg_train_loss, train_acc = train_fn(
+            train_loader, model, criterion, optimizer, scaler, epoch, device, scheduler
+        )
 
         # eval
         avg_val_loss, val_preds = valid_fn(valid_loader, model, criterion, device)
@@ -171,7 +170,6 @@ def main():
         val_f1_score = get_score(valid_labels, val_preds.argmax(1), metric="f1_score")
 
         cur_lr = optimizer.param_groups[0]["lr"]
-        # scheduler.step(val_acc_score)
         LOGGER.info(f"Current learning rate: {cur_lr}")
 
         tb.add_scalar("Learning rate", cur_lr, epoch + 1)
@@ -206,14 +204,7 @@ def main():
                 f"Epoch {epoch+1} - Save Best Accuracy: {best_acc_score:.4f} - \
                 Save Best F1-score: {best_f1_score:.4f} Model"
             )
-            torch.save(
-                {"model": model.state_dict(), "preds": val_preds},
-                os.path.join(
-                    logger_path,
-                    "weights",
-                    "best.pth",
-                ),
-            )
+            save_model(model, epoch + 1, avg_train_loss, avg_val_loss, val_f1_score, optimizer, "best.pt")
             best_epoch = epoch + 1
             count_bad_epochs = 0
         else:
@@ -223,24 +214,26 @@ def main():
         # Early stopping
         if count_bad_epochs > CFG.early_stopping:
             LOGGER.info(f"Stop the training, since the score has not improved for {CFG.early_stopping} epochs!")
-            torch.save(
-                {"model": model.state_dict(), "preds": val_preds},
-                os.path.join(
-                    logger_path,
-                    "weights",
-                    f"{CFG.model_name}_epoch{epoch+1}_last.pth",
-                ),
+            save_model(
+                model,
+                epoch + 1,
+                avg_train_loss,
+                avg_val_loss,
+                val_f1_score,
+                optimizer,
+                f"{CFG.model_name}_epoch{epoch+1}_last.pth",
             )
             break
         elif epoch + 1 == CFG.epochs:
             LOGGER.info(f"Reached the final {epoch+1} epoch!")
-            torch.save(
-                {"model": model.state_dict(), "preds": val_preds},
-                os.path.join(
-                    logger_path,
-                    "weights",
-                    f"{CFG.model_name}_epoch{epoch+1}_final.pth",
-                ),
+            save_model(
+                model,
+                epoch + 1,
+                avg_train_loss,
+                avg_val_loss,
+                val_f1_score,
+                optimizer,
+                f"{CFG.model_name}_epoch{epoch+1}_final.pth",
             )
 
     LOGGER.info(
