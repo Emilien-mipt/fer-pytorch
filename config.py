@@ -13,7 +13,7 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "resnet34_newbaseline_weight-classes"
+    OUTPUT_DIR = "resnet34_SGD_baseline_cyclic-schedule_weightdecay-1e-5"
 
     # Model setup
     chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
@@ -46,28 +46,3 @@ class CFG:
     weight_decay = 1e-5
     gradient_accumulation_steps = 1
     max_grad_norm = 1000
-
-    # Criterion config
-    # Cross-Entropy loss
-    criterion = "CrossEntropyLoss"
-
-    # Label smoothing
-    # criterion = "LabelSmoothing"
-    smooth_alpha = 0.4
-
-    # Bi-Tempered Loss
-    # criterion = "Bi-TemperedLoss"
-    T1 = 0.5
-    T2 = 1.0
-
-    # FocalLoss
-    # criterion = "FocalLoss"
-    gamma = 2
-
-    # FocalCosineLoss
-    # criterion = "FocalCosineLoss"
-
-    # Symmetric Cross-Entropy Loss
-    # criterion = "SymmetricCrossEntropyLoss"
-    alpha = 0.1
-    beta = 1.0
