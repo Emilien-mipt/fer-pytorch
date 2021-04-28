@@ -1,8 +1,4 @@
-import argparse
-import os
-
 import cv2
-import matplotlib.pyplot as plt
 import torch
 import torchvision.transforms as transforms
 from PIL import Image
