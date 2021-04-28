@@ -16,7 +16,8 @@ class CFG:
     OUTPUT_DIR = "resnet34_SGD_baseline_cyclic-schedule_weightdecay-1e-5"
 
     # Model setup
-    chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
+    # chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
+    chk = "./models/resnet34_best.pt"
     # chk = ""
     model_name = "resnet34"
     pretrained = True
