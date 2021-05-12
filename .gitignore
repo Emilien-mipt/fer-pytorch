@@ -11,3 +11,6 @@ __pycache__/
 # weights
 weights/
 *.pt
+
+# Pycharm cache
+.idea/
