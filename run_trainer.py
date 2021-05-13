@@ -15,16 +15,7 @@ from config import CFG
 from model import get_model, save_model
 from train import train_fn, valid_fn
 from train_test_dataset import FERDataset
-from utils.utils import (
-    freeze_fc,
-    freeze_first,
-    freeze_layers,
-    get_score,
-    init_logger,
-    save_batch,
-    seed_torch,
-    unfreeze_all,
-)
+from utils.utils import get_score, init_logger, save_batch, seed_torch
 
 
 def main():
@@ -130,7 +121,9 @@ def main():
         weight_decay=CFG.weight_decay,
     )
 
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[3, 15, 25], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+        optimizer=optimizer, T_0=1762, T_mult=2, eta_min=CFG.min_lr
+    )
 
     # ====================================================
     # loop
@@ -159,32 +152,17 @@ def main():
     # Creates a GradScaler once at the beginning of training.
     scaler = torch.cuda.amp.GradScaler()
 
-    mode_1 = range(0, 3)
-    mode_2 = range(3, 15)
-    mode_3 = range(16, 25)
-
     for epoch in range(CFG.epochs):
-        if epoch in mode_1:
-            freeze_fc(model)
-        elif epoch in mode_2:
-            freeze_layers(model)
-        elif epoch in mode_3:
-            freeze_first(model)
-        else:
-            unfreeze_all(model)
-
         start_time = time.time()
 
         # train
         avg_train_loss, train_acc = train_fn(
-            train_loader, model, criterion, optimizer, scaler, epoch, device, scheduler=None
+            train_loader, model, criterion, optimizer, scaler, epoch, device, scheduler=scheduler
         )
 
         # eval
         avg_val_loss, val_preds = valid_fn(valid_loader, model, criterion, device)
         valid_labels = valid_fold[CFG.target_col].values
-
-        scheduler.step()
 
         # scoring on validation set
         val_acc_score = get_score(valid_labels, val_preds.argmax(1), metric="accuracy")

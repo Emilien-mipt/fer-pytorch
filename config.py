@@ -13,7 +13,7 @@ class CFG:
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "resnet34_SGD_baseline_consecutive-learning_2"
+    OUTPUT_DIR = "resnet34_SGD_baseline_CosineAnnealingWarmRestarts_Tmult-22"
 
     # Model setup
     # chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
