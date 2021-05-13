@@ -5,8 +5,7 @@ import time
 import pandas as pd
 import torch
 import torch.nn as nn
-from sklearn.model_selection import train_test_split
-from torch.optim import SGD, Adam
+from torch.optim import SGD
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torch_lr_finder import LRFinder
@@ -16,7 +15,16 @@ from config import CFG
 from model import get_model, save_model
 from train import train_fn, valid_fn
 from train_test_dataset import FERDataset
-from utils.utils import get_score, init_logger, save_batch, seed_torch, weight_class
+from utils.utils import (
+    freeze_fc,
+    freeze_first,
+    freeze_layers,
+    get_score,
+    init_logger,
+    save_batch,
+    seed_torch,
+    unfreeze_all,
+)
 
 
 def main():
@@ -115,11 +123,14 @@ def main():
     LOGGER.info(f"Batch size {CFG.batch_size}")
     LOGGER.info(f"Input size {CFG.size}")
 
-    # optimizer = Adam(model.parameters(), lr=CFG.lr)
-    optimizer = SGD(model.parameters(), lr=CFG.lr, momentum=CFG.momentum, weight_decay=CFG.weight_decay)
-    scheduler = torch.optim.lr_scheduler.CyclicLR(
-        optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=1762
+    optimizer = SGD(
+        filter(lambda p: p.requires_grad, model.parameters()),
+        lr=CFG.lr,
+        momentum=CFG.momentum,
+        weight_decay=CFG.weight_decay,
     )
+
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[3, 15, 25], gamma=0.1)
 
     # ====================================================
     # loop
@@ -148,18 +159,32 @@ def main():
     # Creates a GradScaler once at the beginning of training.
     scaler = torch.cuda.amp.GradScaler()
 
+    mode_1 = range(0, 3)
+    mode_2 = range(3, 15)
+    mode_3 = range(16, 25)
+
     for epoch in range(CFG.epochs):
+        if epoch in mode_1:
+            freeze_fc(model)
+        elif epoch in mode_2:
+            freeze_layers(model)
+        elif epoch in mode_3:
+            freeze_first(model)
+        else:
+            unfreeze_all(model)
 
         start_time = time.time()
 
         # train
         avg_train_loss, train_acc = train_fn(
-            train_loader, model, criterion, optimizer, scaler, epoch, device, scheduler
+            train_loader, model, criterion, optimizer, scaler, epoch, device, scheduler=None
         )
 
         # eval
         avg_val_loss, val_preds = valid_fn(valid_loader, model, criterion, device)
         valid_labels = valid_fold[CFG.target_col].values
+
+        scheduler.step()
 
         # scoring on validation set
         val_acc_score = get_score(valid_labels, val_preds.argmax(1), metric="accuracy")

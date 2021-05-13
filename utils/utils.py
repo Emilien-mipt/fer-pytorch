@@ -106,3 +106,49 @@ def weight_class(data_df):
     min_class = min(count_classes)
     weight_tensor = min_class / np.array(count_classes)
     return weight_tensor
+
+
+def freeze_fc(input_model):
+    for name, child in input_model.named_children():
+        print(name)
+        if name in ["fc"]:
+            print(name + " is unfrozen")
+            for param in child.parameters():
+                param.requires_grad = True
+        else:
+            print(name + " is frozen")
+            for param in child.parameters():
+                param.requires_grad = False
+
+
+def freeze_layers(input_model):
+    for name, child in input_model.named_children():
+        print(name)
+        if name in ["layer1", "layer2", "layer3", "layer4", "global_pool"]:
+            print(name + " is unfrozen")
+            for param in child.parameters():
+                param.requires_grad = True
+        else:
+            print(name + " is frozen")
+            for param in child.parameters():
+                param.requires_grad = False
+
+
+def freeze_first(input_model):
+    for name, child in input_model.named_children():
+        print(name)
+        if name in ["conv1", "bn1", "act1", "maxpool"]:
+            print(name + " is unfrozen")
+            for param in child.parameters():
+                param.requires_grad = True
+        else:
+            print(name + " is frozen")
+            for param in child.parameters():
+                param.requires_grad = False
+
+
+def unfreeze_all(input_model):
+    for name, child in input_model.named_children():
+        print(name + " is unfrozen")
+        for param in child.parameters():
+            param.requires_grad = True
