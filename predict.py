@@ -12,6 +12,8 @@ from config import CFG
 from model import get_model
 from train_test_dataset import FERDataset
 
+CLASS_NAMES = ["neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear"]
+
 
 def _inference(model, test_loader, device):
     tk0 = enumerate(tqdm(test_loader))
@@ -36,10 +38,30 @@ def predict(test_fold, model, device):
         drop_last=False,
     )
     predictions = _inference(model, test_loader, device)
+    # Add probs
+    test_fold["max_prob"] = predictions.max(axis=1)
+    # Add prediction classes
     test_fold["predictions"] = predictions.argmax(1)
+    # Calculate accuracy and f1 score
+    accuracy = accuracy_score(test_fold["predictions"], test_fold["label"])
+    f1 = f1_score(test_fold["predictions"], test_fold["label"], average="weighted")
+
+    test_fold["diff"] = test_fold["label"] == test_fold["predictions"]
+    print(test_fold.head(20))
+
+    dict_ground_truth = dict(test_fold["label"].value_counts())
+    print(dict_ground_truth)
+
+    test_fold_mistakes = test_fold[test_fold["diff"] == 0]
+    dict_mistakes = dict(test_fold_mistakes["label"].value_counts())
+    print(dict_mistakes)
+
+    dict_div = {CLASS_NAMES[i]: dict_mistakes[i] / dict_ground_truth[i] for i in range(7)}
+    print(dict_div)
+
     return {
-        "accuracy": accuracy_score(test_fold["predictions"], test_fold["label"]),
-        "f1": f1_score(test_fold["predictions"], test_fold["label"], average="weighted"),
+        "accuracy": accuracy,
+        "f1": f1,
     }
 
 

@@ -5,15 +5,18 @@ import pandas as pd
 
 class CFG:
     # Data path
-    TRAIN_PATH = "./FERplus_dataset/data/FER2013Train/"
-    TRAIN_CSV = "./FERplus_dataset/new_train.csv"
+    # TRAIN_PATH = "./FERplus_dataset/data/FER2013Train/"
+    # TRAIN_CSV = "./FERplus_dataset/new_train.csv"
+    TRAIN_PATH = "./FERplus_dataset/data/FER2013Train+Test/"
+    # TRAIN_CSV = "./FERplus_dataset/new_train+test.csv"
+    TRAIN_CSV = "./FERplus_dataset/new_sampled.csv"
     VAL_PATH = "./FERplus_dataset/data/FER2013Valid/"
     VAL_CSV = "./FERplus_dataset/new_val.csv"
     TEST_PATH = "./FERplus_dataset/data/FER2013Test/"
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "resnet34_SGD_baseline_cyclic-schedule_weightdecay-1e-5"
+    OUTPUT_DIR = "resnet34_SGD_baseline_train+test+sample"
 
     # Model setup
     # chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
@@ -29,7 +32,7 @@ class CFG:
     target_col = "label"
 
     # Train configs
-    MIXED_PREC = True  # Flag for mixed precision training
+    MIXED_PREC = False  # Flag for mixed precision training
     debug = False
     epochs = 50
     early_stopping = 10

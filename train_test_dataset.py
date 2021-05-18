@@ -13,7 +13,7 @@ class FERDataset(Dataset):
         self.df = df
         self.file_names = df["image_id"].values
         self.labels = df["label"].values
-        self.mode=mode
+        self.mode = mode
         self.transform = transform
 
     def __len__(self):
@@ -26,9 +26,11 @@ class FERDataset(Dataset):
             file_path = f"{CFG.TRAIN_PATH}/{file_name}"
         elif self.mode == "valid":
             file_path = f"{CFG.VAL_PATH}/{file_name}"
+        elif self.mode == "test":
+            file_path = f"{CFG.TEST_PATH}/{file_name}"
         else:
-            file_path = f"{CFG.TEST_PATH}/{file_name}"   
-        # Read images     
+            raise ValueError("Wrong data mode! Please choose train, valid or test mode.")
+        # Read images
         image = cv2.imread(file_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         if self.transform:

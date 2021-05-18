@@ -5,8 +5,7 @@ import time
 import pandas as pd
 import torch
 import torch.nn as nn
-from sklearn.model_selection import train_test_split
-from torch.optim import SGD, Adam
+from torch.optim import SGD
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torch_lr_finder import LRFinder
@@ -16,7 +15,7 @@ from config import CFG
 from model import get_model, save_model
 from train import train_fn, valid_fn
 from train_test_dataset import FERDataset
-from utils.utils import get_score, init_logger, save_batch, seed_torch, weight_class
+from utils.utils import get_score, init_logger, save_batch, seed_torch
 
 
 def main():
@@ -115,10 +114,9 @@ def main():
     LOGGER.info(f"Batch size {CFG.batch_size}")
     LOGGER.info(f"Input size {CFG.size}")
 
-    # optimizer = Adam(model.parameters(), lr=CFG.lr)
     optimizer = SGD(model.parameters(), lr=CFG.lr, momentum=CFG.momentum, weight_decay=CFG.weight_decay)
     scheduler = torch.optim.lr_scheduler.CyclicLR(
-        optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=1762
+        optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=2652
     )
 
     # ====================================================
@@ -149,12 +147,11 @@ def main():
     scaler = torch.cuda.amp.GradScaler()
 
     for epoch in range(CFG.epochs):
-
         start_time = time.time()
 
         # train
         avg_train_loss, train_acc = train_fn(
-            train_loader, model, criterion, optimizer, scaler, epoch, device, scheduler
+            train_loader, model, criterion, optimizer, scaler, epoch, device, scheduler=scheduler
         )
 
         # eval
