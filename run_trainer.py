@@ -114,15 +114,9 @@ def main():
     LOGGER.info(f"Batch size {CFG.batch_size}")
     LOGGER.info(f"Input size {CFG.size}")
 
-    optimizer = SGD(
-        filter(lambda p: p.requires_grad, model.parameters()),
-        lr=CFG.lr,
-        momentum=CFG.momentum,
-        weight_decay=CFG.weight_decay,
-    )
-
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        optimizer=optimizer, T_0=1762, T_mult=2, eta_min=CFG.min_lr
+    optimizer = SGD(model.parameters(), lr=CFG.lr, momentum=CFG.momentum, weight_decay=CFG.weight_decay)
+    scheduler = torch.optim.lr_scheduler.CyclicLR(
+        optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=2652
     )
 
     # ====================================================
