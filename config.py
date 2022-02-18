@@ -5,22 +5,19 @@ import pandas as pd
 
 class CFG:
     # Data path
-    # TRAIN_PATH = "./FERplus_dataset/data/FER2013Train/"
-    # TRAIN_CSV = "./FERplus_dataset/new_train.csv"
-    TRAIN_PATH = "./FERplus_dataset/data/FER2013Train+Test/"
-    # TRAIN_CSV = "./FERplus_dataset/new_train+test.csv"
-    TRAIN_CSV = "./FERplus_dataset/new_sampled.csv"
+    TRAIN_PATH = "./FERplus_dataset/data/FER2013Train/"
+    TRAIN_CSV = "./FERplus_dataset/new_train.csv"
     VAL_PATH = "./FERplus_dataset/data/FER2013Valid/"
     VAL_CSV = "./FERplus_dataset/new_val.csv"
     TEST_PATH = "./FERplus_dataset/data/FER2013Test/"
     TEST_CSV = "./FERplus_dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
-    OUTPUT_DIR = "resnet34_SGD_baseline_train+test+sample"
+    OUTPUT_DIR = "test_new"
 
     # Model setup
     # chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
-    chk = "./models/resnet34_best.pt"
+    chk = "./logs/test/weights/best.pt"
     # chk = ""
     model_name = "resnet34"
     pretrained = True
