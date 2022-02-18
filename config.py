@@ -17,7 +17,7 @@ class CFG:
 
     # Model setup
     # chk = os.path.join(LOG_DIR, OUTPUT_DIR, "weights", "best.pt")
-    chk = "./logs/test/weights/best.pt"
+    chk = "./models/resnet34_best.pt"
     # chk = ""
     model_name = "resnet34"
     pretrained = True
