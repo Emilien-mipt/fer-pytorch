@@ -29,7 +29,7 @@ class FERModel(nn.Module):
             os.path.join(os.path.join(CFG.LOG_DIR, CFG.OUTPUT_DIR, "weights"), name),
         )
 
-    def load_state_dict(self, weights):
+    def load_weights(self, weights):
         cp = torch.load(weights)
         epoch, train_loss, val_loss, metric_loss = None, None, None, None
         if "model" in cp:

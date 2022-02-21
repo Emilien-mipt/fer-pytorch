@@ -112,7 +112,9 @@ def main():
 
     # Loading weights
     if CFG.chk:
-        model.load_state_dict(CFG.chk)
+        model.load_weights(CFG.chk)
+
+    print(model.state_dict().keys())
 
     model.to(device)
 
