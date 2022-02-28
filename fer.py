@@ -42,7 +42,62 @@ class FER:
         self.model.eval()
 
     def predict_image(self, path_to_image, show_top=False, save_result=True):
-        pass
+        result_list = []
+        frame = cv2.imread(path_to_image)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # Detect faces
+        boxes, _ = self.mtcnn.detect(frame, landmarks=False)
+        if boxes.any():
+            for (x, y, w, h) in boxes:
+                image = gray[int(y) : int(h), int(x) : int(w)]
+                # Convert to PIL image
+                image = Image.fromarray(image)
+                # Apply tranformations
+                image = fer_transforms(image).float()
+                image_tensor = image.unsqueeze_(0)
+                # Apply model to the transformed image
+                input = image_tensor.to(self.device)
+                output = self.model(input)
+                # Predict probabilities
+                probs = torch.nn.functional.softmax(output, dim=1).data.cpu().numpy()
+                # Return results
+                if show_top:
+                    result_list.append(
+                        {
+                            "box": [x, y, w, h],
+                            "top_emotion": {emotion_dict[probs[0].argmax()]: np.amax(probs[0])},
+                        }
+                    )
+                else:
+                    result_list.append(
+                        {
+                            "box": [x, y, w, h],
+                            "emotions": {
+                                emotion_dict[0]: probs[0, 0],
+                                emotion_dict[1]: probs[0, 1],
+                                emotion_dict[2]: probs[0, 2],
+                                emotion_dict[3]: probs[0, 3],
+                                emotion_dict[4]: probs[0, 4],
+                                emotion_dict[5]: probs[0, 5],
+                                emotion_dict[6]: probs[0, 6],
+                            },
+                        }
+                    )
+                if save_result:
+                    cv2.rectangle(frame, (x, y), (w, h), (255, 0, 0), 2)
+                    cv2.putText(
+                        frame,
+                        f"{emotion_dict[probs[0].argmax()]}: {np.amax(probs[0]):.2f}",
+                        (x, int(y - 5)),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1.0,
+                        (0, 0, 255.0),
+                        2,
+                    )
+                    cv2.imwrite("./result.png", frame)
+        else:
+            print("No faces detected!")
+        return result_list
 
     def predict_list_images(self, path_to_folder):
         pass
