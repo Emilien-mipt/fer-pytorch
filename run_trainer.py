@@ -108,13 +108,11 @@ def main():
     # ====================================================
     # model & optimizer
     # ====================================================
-    model = FERModel()
+    model = FERModel(model_arch=CFG.model_name, pretrained=CFG.pretrained)
 
     # Loading weights
     if CFG.chk:
         model.load_weights(CFG.chk)
-
-    print(model.state_dict().keys())
 
     model.to(device)
 
