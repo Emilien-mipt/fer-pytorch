@@ -1,68 +1,74 @@
 [
     {
         "image_name": "angry_2.jpg",
-        "box_coordinate": [
-            197.7195281982422,
-            165.23080444335938,
-            347.2215270996094,
-            378.0795593261719
+        "box": [
+            196.91,
+            171.53,
+            340.6,
+            380.74
         ],
         "emotion": "anger",
-        "probability": 0.9544212818145752
+        "probabilty": 0.83
     },
     {
         "image_name": "Dollarphotoclub_71896210.jpg",
-        "box_coordinate": [
-            302.964111328125,
-            87.74543762207031,
-            465.1127014160156,
-            301.6670227050781
+        "box": [
+            295.91,
+            87.36,
+            463.75,
+            296.0
         ],
         "emotion": "happiness",
-        "probability": 0.9999980926513672
+        "probabilty": 1.0
+    },
+    {
+        "image_name": "no_face.png",
+        "box": [],
+        "emotion": "",
+        "probabilty": NaN
     },
     {
         "image_name": "5481618.jpg",
-        "box_coordinate": [
-            142.87310791015625,
-            99.4944839477539,
-            305.8291320800781,
-            311.5608825683594
+        "box": [
+            142.99,
+            105.41,
+            307.39,
+            309.47
         ],
         "emotion": "neutral",
-        "probability": 0.9994897842407227
+        "probabilty": 1.0
     },
     {
         "image_name": "sad.jpg",
-        "box_coordinate": [
-            234.95477294921875,
-            246.04498291015625,
-            478.79766845703125,
-            595.160400390625
+        "box": [
+            243.78,
+            261.08,
+            493.23,
+            589.03
         ],
-        "emotion": "sadness",
-        "probability": 0.5976244211196899
+        "emotion": "neutral",
+        "probabilty": 0.89
     },
     {
         "image_name": "anger.jpg",
-        "box_coordinate": [
-            2110.978759765625,
-            698.333251953125,
-            3429.99169921875,
-            2669.869384765625
+        "box": [
+            2165.94,
+            795.38,
+            3435.98,
+            2568.86
         ],
         "emotion": "anger",
-        "probability": 0.9596505761146545
+        "probabilty": 1.0
     },
     {
         "image_name": "surprize.jpg",
-        "box_coordinate": [
-            268.4376220703125,
-            195.78604125976562,
-            474.802001953125,
-            507.1427001953125
+        "box": [
+            260.15,
+            213.43,
+            472.24,
+            509.93
         ],
-        "emotion": "neutral",
-        "probability": 0.7558940649032593
+        "emotion": "surprise",
+        "probabilty": 0.97
     }
 ]
