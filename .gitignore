@@ -19,3 +19,6 @@ weights/
 test_images/
 output_images/
 
+# Videos
+*.mp4
+

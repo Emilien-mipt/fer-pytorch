@@ -48,11 +48,8 @@ class FER:
         self.model.to(self.device)
         self.model.eval()
 
-    def predict_image(self, path_to_image, show_top=False, save_image=True, path_to_output="."):
-        if not os.path.isfile(path_to_image):
-            FileNotFoundError("File not found!")
+    def predict_image(self, frame, show_top=False, path_to_output=None):
         result_list = []
-        frame = cv2.imread(path_to_image)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         # Detect faces
         boxes, _ = self.mtcnn.detect(frame, landmarks=False)
@@ -92,60 +89,129 @@ class FER:
                             },
                         }
                     )
-                if save_image:
-                    cv2.rectangle(frame, (x, y), (w, h), (255, 0, 0), 2)
+                if path_to_output is not None:
+                    cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (255, 0, 0), 2)
                     cv2.putText(
                         frame,
                         f"{emotion_dict[probs[0].argmax()]}: {np.amax(probs[0]):.2f}",
-                        (x, int(y - 5)),
+                        (int(x), int(y - 5)),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0,
                         (0, 0, 255.0),
                         2,
                     )
-                    image_name = os.path.basename(path_to_image)
-                    save_path = os.path.join(path_to_output, image_name)
-                    cv2.imwrite(save_path, frame)
+                    cv2.imwrite(path_to_output, frame)
         else:
             print("No faces detected!")
         return result_list
 
+    def json_to_pandas(self, json_file):
+        return pd.read_json(json_file, orient="records")
+
     def predict_list_images(self, path_to_folder, save_images=False):
-        path_to_output = "./output_images"
-        if save_images:
-            os.makedirs(path_to_output, exist_ok=True)
+        path_to_output_dir = "./output_images"
+        path_to_output_file = None
+
+        os.makedirs(path_to_output_dir, exist_ok=True)
 
         result_list = []
+
         list_files = os.listdir(path_to_folder)
         for file_name in tqdm(list_files):
             print(file_name)
-            result_dict = {}
+            result_dict = {"image_name": file_name}
+
+            if save_images:
+                path_to_output_file = os.path.join(path_to_output_dir, file_name)
+
             file_path = os.path.join(path_to_folder, file_name)
-            print(path_to_output)
-            output_list = self.predict_image(
-                file_path, show_top=True, save_image=save_images, path_to_output=path_to_output
-            )
-            result_dict["image_name"] = file_name
+            frame = cv2.imread(file_path)
+
+            output_list = self.predict_image(frame, show_top=True, path_to_output=path_to_output_file)
+
             if output_list:
                 output_dict = output_list[0]
                 result_dict["box"] = [round(float(n), 2) for n in output_dict["box"]]
                 result_dict["emotion"] = [k for k in output_dict["top_emotion"]][0]
-                result_dict["probabilty"] = round(
+                result_dict["probability"] = round(
                     float([output_dict["top_emotion"][k] for k in output_dict["top_emotion"]][0]), 2
                 )
             else:
                 result_dict["box"] = []
                 result_dict["emotion"] = ""
-                result_dict["probabilty"] = np.nan
+                result_dict["probability"] = np.nan
             result_list.append(result_dict)
 
         result_json = json.dumps(result_list, allow_nan=True, indent=4)
-        with open("result.json", "w") as f:
+
+        path_to_json = os.path.join(path_to_output_dir, "result.json")
+        with open(path_to_json, "w") as f:
             f.write(result_json)
         return result_json
 
-    def analyze_video(self, path_to_video):
-        pass
+    def analyze_video(self, path_to_video, video_name=None, fps=25):
+        result_list = []
+        frame_array = []
+        size = None
+
+        path_to_output_dir = "./output_images"
+        os.makedirs(path_to_output_dir, exist_ok=True)
+
+        v_cap = cv2.VideoCapture(path_to_video)
+        v_len = int(v_cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        for i in tqdm(range(v_len)):
+            success, frame = v_cap.read()
+            if not success:
+                print(f"The {i}-th frame could not be loaded. Continue processing...")
+                continue
+
+            height, width, layers = frame.shape
+            size = (width, height)
+
+            output_list = self.predict_image(frame, show_top=True)
+            result_dict = {"frame_id": f"{i}"}
+
+            if output_list:
+                output_dict = output_list[0]
+                result_dict["box"] = [round(float(n), 2) for n in output_dict["box"]]
+                result_dict["emotion"] = [k for k in output_dict["top_emotion"]][0]
+                result_dict["probability"] = round(
+                    float([output_dict["top_emotion"][k] for k in output_dict["top_emotion"]][0]), 2
+                )
+            else:
+                result_dict["box"] = []
+                result_dict["emotion"] = ""
+                result_dict["probability"] = np.nan
+            result_list.append(result_dict)
+
+            x, y, w, h = result_dict["box"][0], result_dict["box"][1], result_dict["box"][2], result_dict["box"][3]
+            cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (255, 0, 0), 2)
+            cv2.putText(
+                frame,
+                f"{result_dict['emotion']}: {result_dict['probability']}",
+                (int(x), int(y - 5)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1.0,
+                (0, 0, 255.0),
+                2,
+            )
+            frame_array.append(frame)
+
+        result_json = json.dumps(result_list, allow_nan=True, indent=4)
+
+        path_to_json = os.path.join(path_to_output_dir, "result.json")
+        with open(path_to_json, "w") as f:
+            f.write(result_json)
+
+        if video_name is not None:
+            path_to_video = os.path.join(path_to_output_dir, video_name)
+            out = cv2.VideoWriter(path_to_video, cv2.VideoWriter_fourcc(*"DIVX"), fps, size)
+            print("Writing videofile...")
+            for i in tqdm(range(len(frame_array))):
+                out.write(frame_array[i])
+            out.release()
+        return json
 
     def run_webcam(self, camera_id):
         pass
