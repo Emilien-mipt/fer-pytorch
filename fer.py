@@ -16,6 +16,10 @@ from config import CFG
 from model import FERModel
 from pre_trained_models import get_pretrained_model
 
+from sklearn.metrics import accuracy_score, f1_score
+
+from train_test_dataset import FERDataset
+
 emotion_dict = {0: "neutral", 1: "happiness", 2: "surprise", 3: "sadness", 4: "anger", 5: "disgust", 6: "fear"}
 
 fer_transforms = transforms.Compose(
@@ -104,9 +108,6 @@ class FER:
         else:
             print("No faces detected!")
         return result_list
-
-    def json_to_pandas(self, json_file):
-        return pd.read_json(json_file, orient="records")
 
     def predict_list_images(self, path_to_folder, save_images=False):
         path_to_output_dir = "./output_images"
@@ -255,3 +256,39 @@ class FER:
                 break
         cap.release()
         cv2.destroyAllWindows()
+
+    def test_fer(self):
+        test_fold = pd.read_csv(CFG.TEST_CSV)
+
+        test_dataset = FERDataset(test_fold, mode="test", transform=get_transforms(data="valid"))
+        test_loader = DataLoader(
+            test_dataset,
+            batch_size=CFG.batch_size,
+            shuffle=False,
+            num_workers=CFG.num_workers,
+            pin_memory=True,
+            drop_last=False,
+        )
+
+        pred_probs = []
+
+        for i, (images, _) in enumerate(tqdm(test_loader)):
+            images = images.to(self.device)
+            with torch.no_grad():
+                y_preds = self.model(images)
+            pred_probs.append(y_preds.softmax(1).to("cpu").numpy())
+        predictions = np.concatenate(pred_probs)
+
+        test_fold["max_prob"] = predictions.max(axis=1)
+        test_fold["predictions"] = predictions.argmax(1)
+
+        accuracy = accuracy_score(test_fold["predictions"], test_fold["label"])
+        f1 = f1_score(test_fold["predictions"], test_fold["label"], average="weighted")
+
+        return {
+            "accuracy": accuracy,
+            "f1": f1,
+        }
+
+    def json_to_pandas(self, json_file):
+        return pd.read_json(json_file, orient="records")

@@ -4,4 +4,5 @@ from fer import FER
 
 fer = FER()
 fer.get_pretrained_model("resnet34_best")
-fer.run_webcam()
+result_dict = fer.test_fer()
+print(result_dict)
