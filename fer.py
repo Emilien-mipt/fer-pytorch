@@ -213,5 +213,43 @@ class FER:
             out.release()
         return json
 
-    def run_webcam(self, camera_id):
-        pass
+    def run_webcam(self):
+        # Capture the stream from camera
+        cap = cv2.VideoCapture(0)
+
+        while True:
+            result_dict = {}
+            success, frame = cap.read()
+
+            if not success:
+                print(f"The frame could not be loaded. Continue processing...")
+                continue
+
+            output_list = self.predict_image(frame, show_top=True)
+
+            if output_list:
+                output_dict = output_list[0]
+                result_dict["box"] = [round(float(n), 2) for n in output_dict["box"]]
+                result_dict["emotion"] = [k for k in output_dict["top_emotion"]][0]
+                result_dict["probability"] = round(
+                    float([output_dict["top_emotion"][k] for k in output_dict["top_emotion"]][0]), 2
+                )
+                x, y, w, h = result_dict["box"][0], result_dict["box"][1], result_dict["box"][2], result_dict["box"][3]
+                cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (255, 0, 0), 2)
+                cv2.putText(
+                    frame,
+                    f"{result_dict['emotion']}: {result_dict['probability']}",
+                    (int(x), int(y - 5)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1.0,
+                    (0, 0, 255.0),
+                    2,
+                )
+            else:
+                result_dict["box"] = []
+                result_dict["emotion"] = ""
+                result_dict["probability"] = np.nan
+
+            cv2.imshow("frame", frame)
+        cap.release()
+        cv2.destroyAllWindows()
