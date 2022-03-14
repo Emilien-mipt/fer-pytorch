@@ -8,6 +8,7 @@ import torch
 import torchvision.transforms as transforms
 from facenet_pytorch import MTCNN
 from PIL import Image
+from sklearn.metrics import accuracy_score, f1_score
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
@@ -15,9 +16,6 @@ from augmentations import get_transforms
 from config import CFG
 from model import FERModel
 from pre_trained_models import get_pretrained_model
-
-from sklearn.metrics import accuracy_score, f1_score
-
 from train_test_dataset import FERDataset
 
 emotion_dict = {0: "neutral", 1: "happiness", 2: "surprise", 3: "sadness", 4: "anger", 5: "disgust", 6: "fear"}
@@ -55,22 +53,19 @@ class FER:
     def predict_image(self, frame, show_top=False, path_to_output=None):
         result_list = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        # Detect faces
+
         boxes, _ = self.mtcnn.detect(frame, landmarks=False)
+
         if boxes is not None:
             for (x, y, w, h) in boxes:
                 image = gray[int(y) : int(h), int(x) : int(w)]
-                # Convert to PIL image
                 image = Image.fromarray(image)
-                # Apply tranformations
                 image = fer_transforms(image).float()
                 image_tensor = image.unsqueeze_(0)
-                # Apply model to the transformed image
                 input = image_tensor.to(self.device)
                 output = self.model(input)
-                # Predict probabilities
                 probs = torch.nn.functional.softmax(output, dim=1).data.cpu().numpy()
-                # Return results
+
                 if show_top:
                     result_list.append(
                         {
@@ -93,6 +88,7 @@ class FER:
                             },
                         }
                     )
+
                 if path_to_output is not None:
                     cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (255, 0, 0), 2)
                     cv2.putText(
@@ -109,34 +105,33 @@ class FER:
             print("No faces detected!")
         return result_list
 
-    def predict_list_images(self, path_to_folder, save_images=False):
-        path_to_output_dir = "./output_images"
-        path_to_output_file = None
-
-        os.makedirs(path_to_output_dir, exist_ok=True)
+    def predict_list_images(self, path_to_input, path_to_output, save_images=False):
+        os.makedirs(path_to_output, exist_ok=True)
 
         result_list = []
+        path_to_output_file = None
 
-        list_files = os.listdir(path_to_folder)
+        list_files = os.listdir(path_to_input)
+
         for file_name in tqdm(list_files):
             print(file_name)
             result_dict = {"image_name": file_name}
 
             if save_images:
-                path_to_output_file = os.path.join(path_to_output_dir, file_name)
+                path_to_output_file = os.path.join(path_to_output, file_name)
 
-            file_path = os.path.join(path_to_folder, file_name)
+            file_path = os.path.join(path_to_input, file_name)
             frame = cv2.imread(file_path)
 
             output_list = self.predict_image(frame, show_top=True, path_to_output=path_to_output_file)
 
             result_dict = self._preprocess_output_list(output_list, result_dict)
-
             result_list.append(result_dict)
 
         result_json = json.dumps(result_list, allow_nan=True, indent=4)
 
-        path_to_json = os.path.join(path_to_output_dir, "result.json")
+        path_to_json = os.path.join(path_to_output, "result.json")
+
         with open(path_to_json, "w") as f:
             f.write(result_json)
         return result_json
@@ -146,7 +141,12 @@ class FER:
         frame_array = []
         size = None
 
-        path_to_output_dir = "./output_video"
+        pathname, extension = os.path.splitext(path_to_video)
+        filename = pathname.split("/")[-1]
+
+        print(f"Processing videofile {filename}...")
+
+        path_to_output_dir = f"./{filename}"
         os.makedirs(path_to_output_dir, exist_ok=True)
 
         v_cap = cv2.VideoCapture(path_to_video)
@@ -168,22 +168,25 @@ class FER:
 
             result_list.append(result_dict)
 
-            x, y, w, h = result_dict["box"][0], result_dict["box"][1], result_dict["box"][2], result_dict["box"][3]
-            cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (255, 0, 0), 2)
-            cv2.putText(
-                frame,
-                f"{result_dict['emotion']}: {result_dict['probability']}",
-                (int(x), int(y - 5)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1.0,
-                (0, 0, 255.0),
-                2,
-            )
+            if output_list:
+                x, y, w, h = result_dict["box"][0], result_dict["box"][1], result_dict["box"][2], result_dict["box"][3]
+                cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (255, 0, 0), 2)
+                cv2.putText(
+                    frame,
+                    f"{result_dict['emotion']}: {result_dict['probability']}",
+                    (int(x), int(y - 5)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1.0,
+                    (0, 0, 255.0),
+                    2,
+                )
+
             frame_array.append(frame)
 
         result_json = json.dumps(result_list, allow_nan=True, indent=4)
 
         path_to_json = os.path.join(path_to_output_dir, "result.json")
+
         with open(path_to_json, "w") as f:
             f.write(result_json)
 
@@ -197,7 +200,6 @@ class FER:
         return json
 
     def run_webcam(self):
-        # Capture the stream from camera
         cap = cv2.VideoCapture(0)
 
         while True:
