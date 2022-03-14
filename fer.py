@@ -130,17 +130,8 @@ class FER:
 
             output_list = self.predict_image(frame, show_top=True, path_to_output=path_to_output_file)
 
-            if output_list:
-                output_dict = output_list[0]
-                result_dict["box"] = [round(float(n), 2) for n in output_dict["box"]]
-                result_dict["emotion"] = [k for k in output_dict["top_emotion"]][0]
-                result_dict["probability"] = round(
-                    float([output_dict["top_emotion"][k] for k in output_dict["top_emotion"]][0]), 2
-                )
-            else:
-                result_dict["box"] = []
-                result_dict["emotion"] = ""
-                result_dict["probability"] = np.nan
+            result_dict = self._preprocess_output_list(output_list, result_dict)
+
             result_list.append(result_dict)
 
         result_json = json.dumps(result_list, allow_nan=True, indent=4)
@@ -155,7 +146,7 @@ class FER:
         frame_array = []
         size = None
 
-        path_to_output_dir = "./output_images"
+        path_to_output_dir = "./output_video"
         os.makedirs(path_to_output_dir, exist_ok=True)
 
         v_cap = cv2.VideoCapture(path_to_video)
@@ -173,17 +164,8 @@ class FER:
             output_list = self.predict_image(frame, show_top=True)
             result_dict = {"frame_id": f"{i}"}
 
-            if output_list:
-                output_dict = output_list[0]
-                result_dict["box"] = [round(float(n), 2) for n in output_dict["box"]]
-                result_dict["emotion"] = [k for k in output_dict["top_emotion"]][0]
-                result_dict["probability"] = round(
-                    float([output_dict["top_emotion"][k] for k in output_dict["top_emotion"]][0]), 2
-                )
-            else:
-                result_dict["box"] = []
-                result_dict["emotion"] = ""
-                result_dict["probability"] = np.nan
+            result_dict = self._preprocess_output_list(output_list, result_dict)
+
             result_list.append(result_dict)
 
             x, y, w, h = result_dict["box"][0], result_dict["box"][1], result_dict["box"][2], result_dict["box"][3]
@@ -228,13 +210,9 @@ class FER:
 
             output_list = self.predict_image(frame, show_top=True)
 
+            result_dict = self._preprocess_output_list(output_list, result_dict)
+
             if output_list:
-                output_dict = output_list[0]
-                result_dict["box"] = [round(float(n), 2) for n in output_dict["box"]]
-                result_dict["emotion"] = [k for k in output_dict["top_emotion"]][0]
-                result_dict["probability"] = round(
-                    float([output_dict["top_emotion"][k] for k in output_dict["top_emotion"]][0]), 2
-                )
                 x, y, w, h = result_dict["box"][0], result_dict["box"][1], result_dict["box"][2], result_dict["box"][3]
                 cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (255, 0, 0), 2)
                 cv2.putText(
@@ -246,10 +224,6 @@ class FER:
                     (0, 0, 255.0),
                     2,
                 )
-            else:
-                result_dict["box"] = []
-                result_dict["emotion"] = ""
-                result_dict["probability"] = np.nan
 
             cv2.imshow("frame", frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -292,3 +266,17 @@ class FER:
 
     def json_to_pandas(self, json_file):
         return pd.read_json(json_file, orient="records")
+
+    def _preprocess_output_list(self, output_list, input_dict):
+        if output_list:
+            output_dict = output_list[0]
+            input_dict["box"] = [round(float(n), 2) for n in output_dict["box"]]
+            input_dict["emotion"] = [k for k in output_dict["top_emotion"]][0]
+            input_dict["probability"] = round(
+                float([output_dict["top_emotion"][k] for k in output_dict["top_emotion"]][0]), 2
+            )
+        else:
+            input_dict["box"] = []
+            input_dict["emotion"] = ""
+            input_dict["probability"] = np.nan
+        return input_dict
