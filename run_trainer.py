@@ -12,7 +12,7 @@ from torch_lr_finder import LRFinder
 
 from augmentations import get_transforms
 from config import CFG
-from model import get_model, save_model
+from model import FERModel
 from train import train_fn, valid_fn
 from train_test_dataset import FERDataset
 from utils.utils import get_score, init_logger, save_batch, seed_torch
@@ -108,7 +108,12 @@ def main():
     # ====================================================
     # model & optimizer
     # ====================================================
-    model = get_model(CFG)
+    model = FERModel(model_arch=CFG.model_name, pretrained=CFG.pretrained)
+
+    # Loading weights
+    if CFG.chk:
+        model.load_weights(CFG.chk)
+
     model.to(device)
 
     LOGGER.info(f"Batch size {CFG.batch_size}")
@@ -197,7 +202,7 @@ def main():
                 f"Epoch {epoch+1} - Save Best Accuracy: {best_acc_score:.4f} - \
                 Save Best F1-score: {best_f1_score:.4f} Model"
             )
-            save_model(model, epoch + 1, avg_train_loss, avg_val_loss, val_f1_score, optimizer, "best.pt")
+            model.save(epoch + 1, avg_train_loss, avg_val_loss, val_f1_score, "best.pt")
             best_epoch = epoch + 1
             count_bad_epochs = 0
         else:
@@ -207,26 +212,14 @@ def main():
         # Early stopping
         if count_bad_epochs > CFG.early_stopping:
             LOGGER.info(f"Stop the training, since the score has not improved for {CFG.early_stopping} epochs!")
-            save_model(
-                model,
-                epoch + 1,
-                avg_train_loss,
-                avg_val_loss,
-                val_f1_score,
-                optimizer,
-                f"{CFG.model_name}_epoch{epoch+1}_last.pth",
+            model.save(
+                epoch + 1, avg_train_loss, avg_val_loss, val_f1_score, f"{CFG.model_name}_epoch{epoch+1}_last.pth"
             )
             break
         elif epoch + 1 == CFG.epochs:
             LOGGER.info(f"Reached the final {epoch+1} epoch!")
-            save_model(
-                model,
-                epoch + 1,
-                avg_train_loss,
-                avg_val_loss,
-                val_f1_score,
-                optimizer,
-                f"{CFG.model_name}_epoch{epoch+1}_final.pth",
+            model.save(
+                epoch + 1, avg_train_loss, avg_val_loss, val_f1_score, f"{CFG.model_name}_epoch{epoch + 1}_final.pth"
             )
 
     LOGGER.info(

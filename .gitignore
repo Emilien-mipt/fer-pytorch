@@ -14,3 +14,11 @@ weights/
 
 # Pycharm cache
 .idea/
+
+# Test images
+test_images/
+output_images/
+
+# Videos
+*.mp4
+
