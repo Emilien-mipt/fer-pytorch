@@ -16,8 +16,9 @@ weights/
 .idea/
 
 # Test images
-test_images/
-output_images/
+*.png
+*.jpg
+*.jpeg
 
 # Videos
 *.mp4

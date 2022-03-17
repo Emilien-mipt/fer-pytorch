@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import timm
 import torch
@@ -8,16 +9,17 @@ from config import CFG
 
 
 class FERModel(nn.Module):
-    def __init__(self, model_arch=CFG.model_name, pretrained=CFG.pretrained):
+
+    def __init__(self, model_arch: str = CFG.model_name, pretrained: bool = CFG.pretrained):
         super().__init__()
         self.model = timm.create_model(model_arch, pretrained=pretrained, num_classes=CFG.target_size)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.model(x)
         return x
 
-    def save(self, epoch, trainloss, valloss, metric, name):
-        """Saves PyTorch model."""
+    def save(self, epoch: int, trainloss: float, valloss: float, metric: Any, name: str) -> None:
+
         torch.save(
             {
                 "model": self.model.state_dict(),
@@ -29,7 +31,7 @@ class FERModel(nn.Module):
             os.path.join(os.path.join(CFG.LOG_DIR, CFG.OUTPUT_DIR, "weights"), name),
         )
 
-    def load_weights(self, path_to_weights):
+    def load_weights(self, path_to_weights: str) -> None:
         cp = torch.load(path_to_weights)
         epoch, train_loss, val_loss, metric_loss = None, None, None, None
         if "model" in cp:

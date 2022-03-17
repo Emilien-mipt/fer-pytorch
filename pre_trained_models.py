@@ -15,16 +15,17 @@ models = {
 }
 
 
-def get_pretrained_model(model_name: str):
+def get_pretrained_model(model_name: str) -> FERModel:
     model = models[model_name].model(model_arch=CFG.model_name, pretrained=False)
     weights = model_zoo.load_url(models[model_name].url, progress=True, map_location="cpu")
     if "model" in weights:
         state_dict = weights["model"]
     else:
         state_dict = weights
-    # Loading stated dict
     state_dict = {".".join(["model", k]): v for k, v in state_dict.items()}
     model.load_state_dict(state_dict)
+
+    epoch, train_loss, val_loss, metric_loss = None, None, None, None
     if "epoch" in weights:
         epoch = int(weights["epoch"])
     if "train_loss" in weights:

@@ -17,8 +17,10 @@ from train import train_fn, valid_fn
 from train_test_dataset import FERDataset
 from utils.utils import get_score, init_logger, save_batch, seed_torch
 
+CLASS_NAMES = ["neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear"]
 
-def main():
+
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Define whether to save train batch figs or find optimal learning rate"
     )
@@ -55,8 +57,6 @@ def main():
 
     LOGGER.info("Reading data...")
     train_fold = pd.read_csv(CFG.TRAIN_CSV)
-
-    CLASS_NAMES = ["neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear"]
 
     LOGGER.info("train shape: ")
     LOGGER.info(train_fold.shape)
@@ -102,7 +102,7 @@ def main():
         path_to_figs = os.path.join(logger_path, "batch_figs")
         os.makedirs(path_to_figs)
         LOGGER.info("Saving figures of a single batch...")
-        save_batch(train_loader, CLASS_NAMES, path_to_figs, CFG)
+        save_batch(train_loader, CLASS_NAMES, path_to_figs, CFG.MEAN, CFG.STD)
         LOGGER.info("Figures have been saved!")
 
     # ====================================================
