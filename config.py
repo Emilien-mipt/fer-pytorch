@@ -1,8 +1,3 @@
-import os
-
-import pandas as pd
-
-
 class CFG:
     # Data path
     TRAIN_PATH = "./FERplus_dataset/data/FER2013Train/"

@@ -1,0 +1,74 @@
+[
+    {
+        "image_name": "angry_2.jpg",
+        "box": [
+            196.91,
+            171.53,
+            340.6,
+            380.74
+        ],
+        "emotion": "anger",
+        "probability": 0.83
+    },
+    {
+        "image_name": "Dollarphotoclub_71896210.jpg",
+        "box": [
+            295.91,
+            87.36,
+            463.75,
+            296.0
+        ],
+        "emotion": "happiness",
+        "probability": 1.0
+    },
+    {
+        "image_name": "no_face.png",
+        "box": [],
+        "emotion": "",
+        "probability": NaN
+    },
+    {
+        "image_name": "5481618.jpg",
+        "box": [
+            142.99,
+            105.41,
+            307.39,
+            309.47
+        ],
+        "emotion": "neutral",
+        "probability": 1.0
+    },
+    {
+        "image_name": "sad.jpg",
+        "box": [
+            243.78,
+            261.08,
+            493.23,
+            589.03
+        ],
+        "emotion": "neutral",
+        "probability": 0.89
+    },
+    {
+        "image_name": "anger.jpg",
+        "box": [
+            2165.94,
+            795.38,
+            3435.98,
+            2568.86
+        ],
+        "emotion": "anger",
+        "probability": 1.0
+    },
+    {
+        "image_name": "surprize.jpg",
+        "box": [
+            260.15,
+            213.43,
+            472.24,
+            509.93
+        ],
+        "emotion": "surprise",
+        "probability": 0.97
+    }
+]

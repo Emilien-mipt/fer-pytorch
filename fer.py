@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Any, Collection, Dict, List, Union
 
 import cv2
 import numpy as np
@@ -9,7 +10,7 @@ import torchvision.transforms as transforms
 from facenet_pytorch import MTCNN
 from PIL import Image
 from sklearn.metrics import accuracy_score, f1_score
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from augmentations import get_transforms
@@ -39,18 +40,20 @@ class FER:
         self.model = None
         self.mtcnn = MTCNN(keep_all=True, select_largest=True, device=self.device)
 
-    def get_pretrained_model(self, model_name):
+    def get_pretrained_model(self, model_name: str) -> None:
         self.model = get_pretrained_model(model_name)
         self.model.to(self.device)
         self.model.eval()
 
-    def load_weights(self, path_to_weigths):
-        fer_model = FERModel(model_arch=CFG.model_name, pretrained=False)
-        self.model = fer_model.load_weights(path_to_weigths)
+    def load_user_weights(self, path_to_weigths: str) -> None:
+        self.model = FERModel(model_arch=CFG.model_name, pretrained=False)
+        self.model.load_weights(path_to_weigths)
         self.model.to(self.device)
         self.model.eval()
 
-    def predict_image(self, frame, show_top=False, path_to_output=None):
+    def predict_image(
+        self, frame: np.array, show_top: bool = False, path_to_output: str = None
+    ) -> List[Dict[str, Collection[Any]]]:
         result_list = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -58,7 +61,7 @@ class FER:
 
         if boxes is not None:
             for (x, y, w, h) in boxes:
-                image = gray[int(y) : int(h), int(x) : int(w)]
+                image = gray[int(y): int(h), int(x): int(w)]
                 image = Image.fromarray(image)
                 image = fer_transforms(image).float()
                 image_tensor = image.unsqueeze_(0)
@@ -105,7 +108,9 @@ class FER:
             print("No faces detected!")
         return result_list
 
-    def predict_list_images(self, path_to_input, path_to_output, save_images=False):
+    def predict_list_images(
+        self, path_to_input: str, path_to_output: str, save_images: bool = False
+    ) -> List[Dict[str, Union[str, List[float], float]]]:
         os.makedirs(path_to_output, exist_ok=True)
 
         result_list = []
@@ -134,9 +139,9 @@ class FER:
 
         with open(path_to_json, "w") as f:
             f.write(result_json)
-        return result_json
+        return result_list
 
-    def analyze_video(self, path_to_video, video_name=None, fps=25):
+    def analyze_video(self, path_to_video: str, video_name: str = None, fps: int = 25) -> None:
         result_list = []
         frame_array = []
         size = None
@@ -162,10 +167,9 @@ class FER:
             size = (width, height)
 
             output_list = self.predict_image(frame, show_top=True)
+
             result_dict = {"frame_id": f"{i}"}
-
             result_dict = self._preprocess_output_list(output_list, result_dict)
-
             result_list.append(result_dict)
 
             if output_list:
@@ -174,7 +178,7 @@ class FER:
                 cv2.putText(
                     frame,
                     f"{result_dict['emotion']}: {result_dict['probability']}",
-                    (int(x), int(y - 5)),
+                    (int(x), int(y) - 5),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     1.0,
                     (0, 0, 255.0),
@@ -184,7 +188,6 @@ class FER:
             frame_array.append(frame)
 
         result_json = json.dumps(result_list, allow_nan=True, indent=4)
-
         path_to_json = os.path.join(path_to_output_dir, "result.json")
 
         with open(path_to_json, "w") as f:
@@ -197,13 +200,12 @@ class FER:
             for i in tqdm(range(len(frame_array))):
                 out.write(frame_array[i])
             out.release()
-        return json
 
-    def run_webcam(self):
+    def run_webcam(self) -> None:
         cap = cv2.VideoCapture(0)
 
         while True:
-            result_dict = {}
+            result_dict: dict = {}
             success, frame = cap.read()
 
             if not success:
@@ -233,7 +235,7 @@ class FER:
         cap.release()
         cv2.destroyAllWindows()
 
-    def test_fer(self):
+    def test_fer(self) -> Dict[str, Any]:
         test_fold = pd.read_csv(CFG.TEST_CSV)
 
         test_dataset = FERDataset(test_fold, mode="test", transform=get_transforms(data="valid"))
@@ -266,10 +268,12 @@ class FER:
             "f1": f1,
         }
 
-    def json_to_pandas(self, json_file):
+    @staticmethod
+    def json_to_pandas(json_file: str) -> pd.DataFrame:
         return pd.read_json(json_file, orient="records")
 
-    def _preprocess_output_list(self, output_list, input_dict):
+    @staticmethod
+    def _preprocess_output_list(output_list: list, input_dict: dict) -> dict:
         if output_list:
             output_dict = output_list[0]
             input_dict["box"] = [round(float(n), 2) for n in output_dict["box"]]

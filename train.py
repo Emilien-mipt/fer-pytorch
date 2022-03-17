@@ -1,14 +1,28 @@
 import time
+from typing import Any, Callable, Tuple
 
 import numpy as np
 import torch
+from torch.cuda.amp import GradScaler
+from torch.optim import Optimizer
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from config import CFG
+from model import FERModel
 from utils.utils import AverageMeter, timeSince
 
 
-def train_fn(train_loader, model, criterion, optimizer, scaler, epoch, device, scheduler=None):
+def train_fn(
+    train_loader: DataLoader,
+    model: FERModel,
+    criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
+    optimizer: Optimizer,
+    scaler: GradScaler,
+    epoch: int,
+    device: torch.device,
+    scheduler: Any,  # type inherit from _LRScheduler
+) -> Tuple[float, float]:
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
@@ -75,7 +89,12 @@ def train_fn(train_loader, model, criterion, optimizer, scaler, epoch, device, s
     return losses.avg, accuracy.avg
 
 
-def valid_fn(valid_loader, model, criterion, device):
+def valid_fn(
+    valid_loader: DataLoader,
+    model: FERModel,
+    criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
+    device: torch.device,
+) -> Tuple[float, np.array]:
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
