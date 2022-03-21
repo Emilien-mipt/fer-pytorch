@@ -6,7 +6,20 @@ fer = FER()
 fer.get_pretrained_model("resnet34_best")
 
 frame = cv2.imread("/home/emin/Desktop/surprize.jpg")
-result = fer.predict_image(frame, show_top=True, path_to_output="./test.png")
+result = fer.predict_image(frame)
+print(result)
+
+result = fer.predict_image(frame, show_top=True)
+print(result)
+
+frame = cv2.imread("./test_images/no_face.png")
+result = fer.predict_image(frame)
+print(result)
+
+frame = cv2.imread("/home/emin/Desktop/Dollarphotoclub_71896210.jpg")
+result = fer.predict_image(frame)
+print(result)
+result = fer.predict_image(frame, show_top=True)
 print(result)
 
 result_json_list = fer.predict_list_images(

@@ -53,7 +53,7 @@ class FER:
 
     def predict_image(
         self, frame: np.array, show_top: bool = False, path_to_output: str = None
-    ) -> List[Dict[str, Collection[Any]]]:
+    ) -> List[Dict[str, dict]]:
         result_list = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
