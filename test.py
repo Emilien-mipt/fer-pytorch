@@ -18,7 +18,7 @@ result_json_list = fer.predict_list_images(
 df = FER.json_to_pandas("./output_images/result.json")
 print(df.head())
 
-fer.analyze_video(path_to_video="./test_video.mp4", video_name="output_video.mp4")
+fer.analyze_video(path_to_video="./test_video.mp4", path_to_output="./test_video", save_video=True)
 df = FER.json_to_pandas("./test_video/result.json")
 print(df.head())
 
