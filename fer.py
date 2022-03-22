@@ -1,7 +1,6 @@
 import json
 import os
-
-from typing import Any, Collection, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import cv2
 import numpy as np
@@ -11,9 +10,7 @@ import torchvision.transforms as transforms
 from facenet_pytorch import MTCNN
 from PIL import Image
 from sklearn.metrics import accuracy_score, f1_score
-
 from torch.utils.data import DataLoader
-
 from tqdm import tqdm
 
 from augmentations import get_transforms
@@ -38,9 +35,9 @@ fer_transforms = transforms.Compose(
 
 
 class FER:
-    def __init__(self):
-        self.device = torch.device(f"cuda" if torch.cuda.is_available() else "cpu")
-        self.model = None
+    def __init__(self) -> None:
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model: Optional[FERModel] = None
         self.mtcnn = MTCNN(keep_all=True, select_largest=True, device=self.device)
 
     def get_pretrained_model(self, model_name: str) -> None:
@@ -55,8 +52,8 @@ class FER:
         self.model.eval()
 
     def predict_image(
-        self, frame: np.array, show_top: bool = False, path_to_output: str = None
-    ) -> List[Dict[str, dict]]:
+        self, frame: np.array, show_top: bool = False, path_to_output: Optional[str] = None
+    ) -> List[dict]:
         result_list = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -64,12 +61,15 @@ class FER:
 
         if boxes is not None:
             for (x, y, w, h) in boxes:
-                image = gray[int(y): int(h), int(x): int(w)]
+                image = gray[int(y) : int(h), int(x) : int(w)]
                 image = Image.fromarray(image)
                 image = fer_transforms(image).float()
                 image_tensor = image.unsqueeze_(0)
                 input = image_tensor.to(self.device)
-                output = self.model(input)
+                if self.model is not None:
+                    output = self.model(input)
+                else:
+                    raise TypeError("Nonetype is not callable!")
                 probs = torch.nn.functional.softmax(output, dim=1).data.cpu().numpy()
 
                 if show_top:
@@ -212,7 +212,7 @@ class FER:
             success, frame = cap.read()
 
             if not success:
-                print(f"The frame could not be loaded. Continue processing...")
+                print("The frame could not be loaded. Continue processing...")
                 continue
 
             output_list = self.predict_image(frame, show_top=True)
@@ -253,10 +253,13 @@ class FER:
 
         pred_probs = []
 
-        for i, (images, _) in enumerate(tqdm(test_loader)):
+        for _, (images, _) in enumerate(tqdm(test_loader)):
             images = images.to(self.device)
-            with torch.no_grad():
-                y_preds = self.model(images)
+            if self.model is not None:
+                with torch.no_grad():
+                    y_preds = self.model(images)
+            else:
+                raise TypeError("Nonetype is not callable!")
             pred_probs.append(y_preds.softmax(1).to("cpu").numpy())
         predictions = np.concatenate(pred_probs)
 
@@ -271,7 +274,6 @@ class FER:
             "f1": np.round(f1, 2),
         }
 
-
     @staticmethod
     def json_to_pandas(json_file: str) -> pd.DataFrame:
         return pd.read_json(json_file, orient="records")
@@ -281,7 +283,7 @@ class FER:
         if output_list:
             output_dict = output_list[0]
             input_dict["box"] = [round(float(n), 2) for n in output_dict["box"]]
-            input_dict["emotion"] = [k for k in output_dict["top_emotion"]][0]
+            input_dict["emotion"] = next(iter(output_dict["top_emotion"]))
             input_dict["probability"] = round(
                 float([output_dict["top_emotion"][k] for k in output_dict["top_emotion"]][0]), 2
             )

@@ -13,10 +13,12 @@ from torch.utils.data import DataLoader
 
 
 def get_score(y_true: np.array, y_pred: np.array, metric: str) -> Any:
+    score = None
     if metric == "accuracy":
-        return accuracy_score(y_true, y_pred)
+        score = accuracy_score(y_true, y_pred)
     if metric == "f1_score":
-        return f1_score(y_true, y_pred, average="weighted")
+        score = f1_score(y_true, y_pred, average="weighted")
+    return score
 
 
 def init_logger(log_file_name: str) -> Logger:
@@ -46,16 +48,16 @@ def seed_torch(seed: int = 42) -> None:
 class AverageMeter:
     """Computes and stores the average and current value"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.reset()
 
-    def reset(self):
-        self.val = 0
-        self.avg = 0
-        self.sum = 0
-        self.count = 0
+    def reset(self) -> None:
+        self.val = 0.0
+        self.avg = 0.0
+        self.sum = 0.0
+        self.count = 0.0
 
-    def update(self, val, n=1):
+    def update(self, val: float, n: int = 1) -> None:
         self.val = val
         self.sum += val * n
         self.count += n
@@ -71,9 +73,9 @@ def asMinutes(s: float) -> str:
 def timeSince(since: float, percent: float) -> str:
     now = time.time()
     s = now - since
-    es = s / (percent)
+    es = s / percent
     rs = es - s
-    return "{} (remain {})".format(asMinutes(s), asMinutes(rs))
+    return f"{asMinutes(s)} (remain {asMinutes(rs)})"
 
 
 def save_input(

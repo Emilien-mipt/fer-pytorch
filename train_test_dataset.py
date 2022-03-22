@@ -1,25 +1,26 @@
+from typing import Tuple
+
+import albumentations as A
 import cv2
+import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
 from config import CFG
 
 
-# ====================================================
-# Dataset creation
-# ====================================================
 class FERDataset(Dataset):
-    def __init__(self, df, mode=None, transform=None):
+    def __init__(self, df: pd.DataFrame, mode: str, transform: A.Compose) -> None:
         self.df = df
         self.file_names = df["image_id"].values
         self.labels = df["label"].values
         self.mode = mode
         self.transform = transform
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.df)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         file_name = self.file_names[idx]
         # Select mode
         if self.mode == "train":

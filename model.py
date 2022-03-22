@@ -9,7 +9,6 @@ from config import CFG
 
 
 class FERModel(nn.Module):
-
     def __init__(self, model_arch: str = CFG.model_name, pretrained: bool = CFG.pretrained):
         super().__init__()
         self.model = timm.create_model(model_arch, pretrained=pretrained, num_classes=CFG.target_size)
