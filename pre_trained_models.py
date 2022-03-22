@@ -24,6 +24,7 @@ def get_pretrained_model(model_name: str) -> FERModel:
         state_dict = weights
     state_dict = {".".join(["model", k]): v for k, v in state_dict.items()}
     model.load_state_dict(state_dict)
+
     epoch, train_loss, val_loss, metric_loss = None, None, None, None
     if "epoch" in weights:
         epoch = int(weights["epoch"])

@@ -1,5 +1,6 @@
 import json
 import os
+
 from typing import Any, Collection, Dict, List, Union
 
 import cv2
@@ -10,7 +11,9 @@ import torchvision.transforms as transforms
 from facenet_pytorch import MTCNN
 from PIL import Image
 from sklearn.metrics import accuracy_score, f1_score
+
 from torch.utils.data import DataLoader
+
 from tqdm import tqdm
 
 from augmentations import get_transforms
@@ -139,6 +142,7 @@ class FER:
 
         with open(path_to_json, "w") as f:
             f.write(result_json)
+
         return result_list
 
     def analyze_video(self, path_to_video: str, path_to_output: str, save_video: bool = False, fps: int = 25) -> None:
@@ -204,6 +208,7 @@ class FER:
 
         while True:
             result_dict: dict = {}
+
             success, frame = cap.read()
 
             if not success:
@@ -265,6 +270,7 @@ class FER:
             "accuracy": np.round(accuracy, 2),
             "f1": np.round(f1, 2),
         }
+
 
     @staticmethod
     def json_to_pandas(json_file: str) -> pd.DataFrame:
