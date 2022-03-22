@@ -1,5 +1,4 @@
 import cv2
-
 import numpy as np
 
 from fer import FER
@@ -23,8 +22,7 @@ def test_with_face_types():
     result_dict = result[0]
     assert isinstance(result_dict, dict)
 
-    key_list = [key for key in result_dict.keys()]
-    assert ("box" in key_list) and ("emotions" in key_list)
+    assert ("box" in result_dict.keys()) and ("emotions" in result_dict.keys())
     assert isinstance(result_dict["box"], list)
     assert isinstance(result_dict["emotions"], dict)
 
@@ -35,8 +33,7 @@ def test_with_face_types():
     result_dict_top = result_top[0]
     assert isinstance(result_dict_top, dict)
 
-    key_list_top = [key for key in result_dict_top.keys()]
-    assert ("box" in key_list_top) and ("top_emotion" in key_list_top)
+    assert ("box" in result_dict_top.keys()) and ("top_emotion" in result_dict_top.keys())
     assert isinstance(result_dict_top["box"], list)
     assert isinstance(result_dict_top["top_emotion"], dict)
 
