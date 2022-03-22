@@ -21,7 +21,7 @@ def train_fn(
     scaler: GradScaler,
     epoch: int,
     device: torch.device,
-    scheduler: Any,  # type inherit from _LRScheduler
+    scheduler: Any,
 ) -> Tuple[float, float]:
     batch_time = AverageMeter()
     data_time = AverageMeter()
