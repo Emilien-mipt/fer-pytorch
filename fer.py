@@ -56,7 +56,7 @@ class FER:
 
     def predict_image(
         self, frame: np.array, show_top: bool = False, path_to_output: str = None
-    ) -> List[Dict[str, Collection[Any]]]:
+    ) -> List[Dict[str, dict]]:
         result_list = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -145,18 +145,16 @@ class FER:
 
         return result_list
 
-    def analyze_video(self, path_to_video: str, video_name: str = None, fps: int = 25) -> None:
+    def analyze_video(self, path_to_video: str, path_to_output: str, save_video: bool = False, fps: int = 25) -> None:
         result_list = []
         frame_array = []
         size = None
 
-        pathname, extension = os.path.splitext(path_to_video)
-        filename = pathname.split("/")[-1]
+        filename = os.path.basename(path_to_video)
 
         print(f"Processing videofile {filename}...")
 
-        path_to_output_dir = f"./{filename}"
-        os.makedirs(path_to_output_dir, exist_ok=True)
+        os.makedirs(path_to_output, exist_ok=True)
 
         v_cap = cv2.VideoCapture(path_to_video)
         v_len = int(v_cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -192,14 +190,13 @@ class FER:
             frame_array.append(frame)
 
         result_json = json.dumps(result_list, allow_nan=True, indent=4)
-
-        path_to_json = os.path.join(path_to_output_dir, "result.json")
+        path_to_json = os.path.join(path_to_output, "result.json")
 
         with open(path_to_json, "w") as f:
             f.write(result_json)
 
-        if video_name is not None:
-            path_to_video = os.path.join(path_to_output_dir, video_name)
+        if save_video is not None:
+            path_to_video = os.path.join(path_to_output, filename)
             out = cv2.VideoWriter(path_to_video, cv2.VideoWriter_fourcc(*"DIVX"), fps, size)
             print("Writing videofile...")
             for i in tqdm(range(len(frame_array))):
@@ -270,8 +267,8 @@ class FER:
         f1 = f1_score(test_fold["predictions"], test_fold["label"], average="weighted")
 
         return {
-            "accuracy": accuracy,
-            "f1": f1,
+            "accuracy": np.round(accuracy, 2),
+            "f1": np.round(f1, 2),
         }
 
 
