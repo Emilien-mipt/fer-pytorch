@@ -13,13 +13,13 @@ result = fer.predict_image(frame, show_top=True)
 print(result)
 
 result_json_list = fer.predict_list_images(
-    path_to_input="./test_images/", path_to_output="./output_images", save_images=True
+    path_to_input="test_images", path_to_output="output_images", save_images=True
 )
-df = FER.json_to_pandas("./output_images/result.json")
+df = FER.json_to_pandas("output_images/result.json")
 print(df.head())
 
-fer.analyze_video(path_to_video="./test_video.mp4", path_to_output="./test_video", save_video=True)
-df = FER.json_to_pandas("./test_video/result.json")
+fer.analyze_video(path_to_video="test_video.mp4", path_to_output="test_video", save_video=True)
+df = FER.json_to_pandas("test_video/result.json")
 print(df.head())
 
 result_dict = fer.test_fer()

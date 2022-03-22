@@ -262,8 +262,8 @@ class FER:
         f1 = f1_score(test_fold["predictions"], test_fold["label"], average="weighted")
 
         return {
-            "accuracy": accuracy,
-            "f1": f1,
+            "accuracy": np.round(accuracy, 2),
+            "f1": np.round(f1, 2),
         }
 
     @staticmethod
