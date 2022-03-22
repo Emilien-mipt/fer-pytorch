@@ -12,7 +12,7 @@ fer.get_pretrained_model(model_name="resnet34_best")
 
 
 def test_predict_list_images():
-    output_dir = "./test_list_images"
+    output_dir = "test_list_images"
     result_list = fer.predict_list_images(PATH_TO_FOLDER, output_dir)
 
     assert isinstance(result_list, list)
