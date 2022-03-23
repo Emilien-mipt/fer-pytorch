@@ -1,5 +1,4 @@
 import os
-from typing import Any
 
 import timm
 import torch
@@ -17,7 +16,7 @@ class FERModel(nn.Module):
         x = self.model(x)
         return x
 
-    def save(self, epoch: int, trainloss: float, valloss: float, metric: Any, name: str) -> None:
+    def save(self, epoch: int, trainloss: float, valloss: float, metric: float, name: str) -> None:
 
         torch.save(
             {

@@ -89,7 +89,6 @@ def save_input(
     plt.imshow(image.clip(0, 1))
     plt.title(title)
     fig_name = f"{index}.png"
-    fig_path = fig_path
     plt.savefig(os.path.join(fig_path, fig_name))
 
 

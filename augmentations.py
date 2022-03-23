@@ -4,13 +4,10 @@ from albumentations.pytorch import ToTensorV2
 from config import CFG
 
 
-# ====================================================
-# Transforms
-# ====================================================
 def get_transforms(*, data: str) -> A.Compose:
-
+    transforms = None
     if data == "train":
-        return A.Compose(
+        transforms = A.Compose(
             [
                 A.Resize(CFG.size, CFG.size),
                 A.HorizontalFlip(p=0.5),
@@ -27,7 +24,7 @@ def get_transforms(*, data: str) -> A.Compose:
         )
 
     elif data == "valid":
-        return A.Compose(
+        transforms = A.Compose(
             [
                 A.Resize(CFG.size, CFG.size),
                 A.Normalize(
@@ -37,3 +34,4 @@ def get_transforms(*, data: str) -> A.Compose:
                 ToTensorV2(),
             ]
         )
+    return transforms
