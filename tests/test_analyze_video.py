@@ -1,21 +1,25 @@
 import os
 import shutil
+import urllib.request
 
 import cv2
 
 from fer_pytorch.fer import FER
 
-PATH_TO_VIDEO = "tests/test_videos/test_video.mp4"
+URL = "https://github.com/Emilien-mipt/FERplus-Pytorch/releases/download/0.0.2/test_video.mp4"
+PATH_TO_VIDEO = "tests/test_video.mp4"
 
 fer = FER()
 fer.get_pretrained_model(model_name="resnet34_best")
 
 
 def test_analyze_video():
+    urllib.request.urlretrieve(URL, "tests/test_video.mp4")
+
     v_cap = cv2.VideoCapture(PATH_TO_VIDEO)
     v_len = int(v_cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    path_to_output = "testing_video"
+    path_to_output = "tests/testing_video"
     path_to_output.split()
     fer.analyze_video(path_to_video=PATH_TO_VIDEO, path_to_output=path_to_output)
 
