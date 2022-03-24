@@ -15,10 +15,5 @@ weights/
 # Pycharm cache
 .idea/
 
-# Test images
-*.png
-*.jpg
-*.jpeg
-
 # Videos
 *.mp4
