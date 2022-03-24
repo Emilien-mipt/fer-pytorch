@@ -5,7 +5,7 @@ import cv2
 
 from fer_pytorch.fer import FER
 
-PATH_TO_VIDEO = "./test_video.mp4"
+PATH_TO_VIDEO = "tests/test_videos/test_video.mp4"
 
 fer = FER()
 fer.get_pretrained_model(model_name="resnet34_best")

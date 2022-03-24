@@ -3,10 +3,10 @@ import numpy as np
 
 from fer_pytorch.fer import FER
 
-PATH_HAPPY = "./test_images/happy.jpg"
-PATH_SURPRIZE = "./test_images/surprize.jpg"
+PATH_HAPPY = "tests/test_images/happy.jpg"
+PATH_SURPRIZE = "tests/test_images/surprize.jpg"
 
-PATH_NOFACE = "./test_images/no_face.png"
+PATH_NOFACE = "tests/test_images/no_face.jpg"
 
 fer = FER()
 fer.get_pretrained_model(model_name="resnet34_best")

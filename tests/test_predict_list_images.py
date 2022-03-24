@@ -5,14 +5,14 @@ import numpy as np
 
 from fer_pytorch.fer import FER
 
-PATH_TO_FOLDER = "./test_images"
+PATH_TO_FOLDER = "tests/test_images/"
 
 fer = FER()
 fer.get_pretrained_model(model_name="resnet34_best")
 
 
 def test_predict_list_images():
-    output_dir = "test_list_images"
+    output_dir = "tests/test_list_images"
     result_list = fer.predict_list_images(PATH_TO_FOLDER, output_dir)
 
     assert isinstance(result_list, list)
@@ -27,9 +27,9 @@ def test_predict_list_images():
     assert result_df.shape[1] == 3
 
     assert (
-        result_df.loc["no_face.png", "box"] == []
-        and result_df.loc["no_face.png", "emotion"] == ""
-        and np.isnan(result_df.loc["no_face.png", "probability"])
+        result_df.loc["no_face.jpg", "box"] == []
+        and result_df.loc["no_face.jpg", "emotion"] == ""
+        and np.isnan(result_df.loc["no_face.jpg", "probability"])
     )
 
     result_df.dropna(inplace=True)
