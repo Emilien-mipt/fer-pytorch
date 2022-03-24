@@ -2,8 +2,8 @@ from collections import namedtuple
 
 from torch.utils import model_zoo
 
-from config import CFG
-from model import FERModel
+from fer_pytorch.config import CFG
+from fer_pytorch.model import FERModel
 
 model = namedtuple("model", ["url", "model"])
 

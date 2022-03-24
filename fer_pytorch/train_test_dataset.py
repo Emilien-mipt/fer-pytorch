@@ -6,7 +6,7 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
-from config import CFG
+from fer_pytorch.config import CFG
 
 
 class FERDataset(Dataset):

@@ -3,7 +3,7 @@ import shutil
 
 import numpy as np
 
-from fer import FER
+from fer_pytorch.fer import FER
 
 PATH_TO_FOLDER = "./test_images"
 

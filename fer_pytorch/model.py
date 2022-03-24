@@ -4,7 +4,7 @@ import timm
 import torch
 import torch.nn as nn
 
-from config import CFG
+from fer_pytorch.config import CFG
 
 
 class FERModel(nn.Module):

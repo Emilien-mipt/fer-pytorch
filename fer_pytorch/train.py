@@ -8,9 +8,9 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from config import CFG
-from model import FERModel
-from utils.utils import AverageMeter, timeSince
+from fer_pytorch.config import CFG
+from fer_pytorch.model import FERModel
+from fer_pytorch.utils.utils import AverageMeter, timeSince
 
 
 def train_fn(

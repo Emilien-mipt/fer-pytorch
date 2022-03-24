@@ -3,7 +3,7 @@ import shutil
 
 import cv2
 
-from fer import FER
+from fer_pytorch.fer import FER
 
 PATH_TO_VIDEO = "./test_video.mp4"
 

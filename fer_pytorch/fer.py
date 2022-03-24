@@ -13,11 +13,11 @@ from sklearn.metrics import accuracy_score, f1_score
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from augmentations import get_transforms
-from config import CFG
-from model import FERModel
-from pre_trained_models import get_pretrained_model
-from train_test_dataset import FERDataset
+from fer_pytorch.augmentations import get_transforms
+from fer_pytorch.config import CFG
+from fer_pytorch.model import FERModel
+from fer_pytorch.pre_trained_models import get_pretrained_model
+from fer_pytorch.train_test_dataset import FERDataset
 
 emotion_dict = {0: "neutral", 1: "happiness", 2: "surprise", 3: "sadness", 4: "anger", 5: "disgust", 6: "fear"}
 

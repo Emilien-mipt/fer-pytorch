@@ -1,11 +1,11 @@
 class CFG:
     # Data path
-    TRAIN_PATH = "./FERplus_dataset/data/FER2013Train/"
-    TRAIN_CSV = "./FERplus_dataset/new_train.csv"
-    VAL_PATH = "./FERplus_dataset/data/FER2013Valid/"
-    VAL_CSV = "./FERplus_dataset/new_val.csv"
-    TEST_PATH = "./FERplus_dataset/data/FER2013Test/"
-    TEST_CSV = "./FERplus_dataset/new_test.csv"
+    TRAIN_PATH = "./dataset/data/FER2013Train/"
+    TRAIN_CSV = "./dataset/new_train.csv"
+    VAL_PATH = "./dataset/data/FER2013Valid/"
+    VAL_CSV = "./dataset/new_val.csv"
+    TEST_PATH = "./dataset/data/FER2013Test/"
+    TEST_CSV = "./dataset/new_test.csv"
     # Logging
     LOG_DIR = "./logs"
     OUTPUT_DIR = "test_new"

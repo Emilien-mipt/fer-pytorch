@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from fer import FER
+from fer_pytorch.fer import FER
 
 PATH_HAPPY = "./test_images/happy.jpg"
 PATH_SURPRIZE = "./test_images/surprize.jpg"

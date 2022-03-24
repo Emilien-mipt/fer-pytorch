@@ -1,7 +1,7 @@
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-from config import CFG
+from fer_pytorch.config import CFG
 
 
 def get_transforms(*, data: str) -> A.Compose:

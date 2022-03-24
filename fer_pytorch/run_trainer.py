@@ -10,12 +10,12 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torch_lr_finder import LRFinder
 
-from augmentations import get_transforms
-from config import CFG
-from model import FERModel
-from train import train_fn, valid_fn
-from train_test_dataset import FERDataset
-from utils.utils import get_score, init_logger, save_batch, seed_torch
+from fer_pytorch.augmentations import get_transforms
+from fer_pytorch.config import CFG
+from fer_pytorch.model import FERModel
+from fer_pytorch.train import train_fn, valid_fn
+from fer_pytorch.train_test_dataset import FERDataset
+from fer_pytorch.utils.utils import get_score, init_logger, save_batch, seed_torch
 
 CLASS_NAMES = ["neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear"]
 

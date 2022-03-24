@@ -1,4 +1,4 @@
-from fer import FER
+from fer_pytorch.fer import FER
 
 fer = FER()
 fer.get_pretrained_model(model_name="resnet34_best")
