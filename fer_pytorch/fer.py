@@ -53,6 +53,7 @@ class FER:
         Args:
             model_name (str): The name that stands for the weights to be uploaded.
         """
+
         self.model = get_pretrained_model(model_name)
         self.model.to(self.device)
         self.model.eval()
@@ -63,6 +64,7 @@ class FER:
         Args:
             path_to_weigths (str): Path to the user weights to be uploaded.
         """
+
         self.model = FERModel(model_arch=CFG.model_name, pretrained=False)
         self.model.load_weights(path_to_weigths)
         self.model.to(self.device)
