@@ -35,17 +35,36 @@ fer_transforms = transforms.Compose(
 
 
 class FER:
+    """
+    The FER inference class.
+
+    Implemented for inference of the Facial Emotion Recognition model on different types of data
+    (image, list of images, video files and e.t.c.)
+    """
+
     def __init__(self) -> None:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model: Optional[FERModel] = None
         self.mtcnn = MTCNN(keep_all=True, select_largest=True, device=self.device)
 
     def get_pretrained_model(self, model_name: str) -> None:
+        """The method initializes the FER model and uploads the pretrained weights from the internet.
+
+        Args:
+            model_name (str): The name that stands for the weights to be uploaded.
+        """
+
         self.model = get_pretrained_model(model_name)
         self.model.to(self.device)
         self.model.eval()
 
     def load_user_weights(self, path_to_weigths: str) -> None:
+        """The method initializes the FER model and uploads the user weights that are stored locally.
+
+        Args:
+            path_to_weigths (str): Path to the user weights to be uploaded.
+        """
+
         self.model = FERModel(model_arch=CFG.model_name, pretrained=False)
         self.model.load_weights(path_to_weigths)
         self.model.to(self.device)
@@ -54,6 +73,20 @@ class FER:
     def predict_image(
         self, frame: np.array, show_top: bool = False, path_to_output: Optional[str] = None
     ) -> List[dict]:
+        """The method makes the prediction of the FER model on a single image.
+
+        Args:
+            frame (np.array): Input image in np.array format after it is read by OpenCV.
+            show_top (bool): Whether to output only one emotion with maximum probability or all emotions with
+            corresponding probabilities.
+            path_to_output (str, optional): If the output path is given, the image with bounding box and top emotion
+            with corresponding probability is saved.
+
+        Returns:
+            The list of dictionaries with bounding box coordinates and recognized emotion probabilities for all the
+            people detected on the image.
+        """
+
         result_list = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -114,6 +147,19 @@ class FER:
     def predict_list_images(
         self, path_to_input: str, path_to_output: str, save_images: bool = False
     ) -> List[Dict[str, Union[str, List[float], float]]]:
+        """The method makes the prediction of the FER model on a list of images.
+
+        Args:
+            path_to_input (str): Path to the folder with images.
+            path_to_output (str): Path to the output folder, where the json with recognition results and optionally
+            the output images are saved.
+            save_images (bool): Whether to save output images or not.
+
+        Returns:
+            The list of dictionaries with bounding box coordinates, recognized top emotions and corresponding
+            probabilities for each image in the folder.
+        """
+
         os.makedirs(path_to_output, exist_ok=True)
 
         result_list = []
@@ -146,6 +192,19 @@ class FER:
         return result_list
 
     def analyze_video(self, path_to_video: str, path_to_output: str, save_video: bool = False, fps: int = 25) -> None:
+        """The method makes the prediction of the FER model on a video file.
+
+        The method saves the output json file with emotion recognition results for each frame of the input video. The
+        json can be read further by Pandas and analyzed if it is needed.
+
+        Args:
+            path_to_video (str): Path to the input video file.
+            path_to_output (str): Path to the output folder, where the json with recognition results and optionally
+            the output video is saved.
+            save_video (bool): Whether to save output video or not.
+            fps (int): Number of fps for output video.
+        """
+
         result_list = []
         frame_array = []
         size = None
@@ -204,6 +263,9 @@ class FER:
             out.release()
 
     def run_webcam(self) -> None:
+        """The method makes the prediction of the FER model for the stream from the web camera and shows the results in
+        real-time."""
+
         cap = cv2.VideoCapture(0)
 
         while True:
@@ -239,6 +301,13 @@ class FER:
         cv2.destroyAllWindows()
 
     def test_fer(self) -> Dict[str, Any]:
+        """The method is intended for convenient calculation of metrics (accuracy and f1 score) on the test part of the
+        FER dataset.
+
+        Returns:
+            The dictionary with accuracy and f1 score values.
+        """
+
         test_fold = pd.read_csv(CFG.TEST_CSV)
 
         test_dataset = FERDataset(test_fold, mode="test", transform=get_transforms(data="valid"))
@@ -276,19 +345,36 @@ class FER:
 
     @staticmethod
     def json_to_pandas(json_file: str) -> pd.DataFrame:
+        """The helper method to transform output json file to Pandas dataframe in convenient way.
+
+        Args:
+            json_file (str): Path to json file.
+
+        Returns:
+            The Pandas dataframe.
+        """
         return pd.read_json(json_file, orient="records")
 
     @staticmethod
-    def _preprocess_output_list(output_list: list, input_dict: dict) -> dict:
+    def _preprocess_output_list(output_list: list, result_dict: dict) -> dict:
+        """The method is intended to process output list with recognition results to make it more convenient to save
+        them in json format.
+
+        Args:
+            output_list (list): Output list with result from the prediction on a single image.
+            result_dict (dict): The dictionary that is modified as a result of this method and contains all the needed
+            information about FER on a single image.
+
+        Returns:
+            The dictionary with FER results for a single image.
+        """
         if output_list:
             output_dict = output_list[0]
-            input_dict["box"] = [round(float(n), 2) for n in output_dict["box"]]
-            input_dict["emotion"] = next(iter(output_dict["top_emotion"]))
-            input_dict["probability"] = round(
-                float([output_dict["top_emotion"][k] for k in output_dict["top_emotion"]][0]), 2
-            )
+            result_dict["box"] = [round(float(n), 2) for n in output_dict["box"]]
+            result_dict["emotion"] = next(iter(output_dict["top_emotion"]))
+            result_dict["probability"] = round(float(next(iter(output_dict["top_emotion"].values()))), 2)
         else:
-            input_dict["box"] = []
-            input_dict["emotion"] = ""
-            input_dict["probability"] = np.nan
-        return input_dict
+            result_dict["box"] = []
+            result_dict["emotion"] = ""
+            result_dict["probability"] = np.nan
+        return result_dict
