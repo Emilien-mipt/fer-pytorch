@@ -1,4 +1,9 @@
+from pathlib import Path
+
+
 class CFG:
+    # Package path
+    PACKAGE_DIR = Path(__file__).resolve().parent
     # Data path
     TRAIN_PATH = "fer_pytorch/dataset/data/FER2013Train/"
     TRAIN_CSV = "fer_pytorch/dataset/new_train.csv"

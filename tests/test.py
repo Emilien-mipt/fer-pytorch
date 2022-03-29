@@ -2,7 +2,7 @@ import cv2
 
 from fer_pytorch.fer import FER
 
-fer = FER()
+fer = FER(device_rank=1)
 fer.get_pretrained_model("resnet34_best")
 
 frame = cv2.imread("tests/test_images/happy.jpg")

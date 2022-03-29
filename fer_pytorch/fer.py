@@ -1,5 +1,6 @@
 import json
 import os
+import warnings
 from typing import Any, Dict, List, Optional, Union
 
 import cv2
@@ -42,8 +43,9 @@ class FER:
     (image, list of images, video files and e.t.c.)
     """
 
-    def __init__(self) -> None:
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    def __init__(self, device_rank: int = 0) -> None:
+        self.device_rank = device_rank
+        self.device = torch.device(f"cuda:{self.device_rank}" if torch.cuda.is_available() else "cpu")
         self.model: Optional[FERModel] = None
         self.mtcnn = MTCNN(keep_all=True, select_largest=True, device=self.device)
 
@@ -71,7 +73,7 @@ class FER:
         self.model.eval()
 
     def predict_image(
-        self, frame: np.array, show_top: bool = False, path_to_output: Optional[str] = None
+        self, frame: Optional[np.array], show_top: bool = False, path_to_output: Optional[str] = None
     ) -> List[dict]:
         """The method makes the prediction of the FER model on a single image.
 
@@ -86,6 +88,9 @@ class FER:
             The list of dictionaries with bounding box coordinates and recognized emotion probabilities for all the
             people detected on the image.
         """
+
+        if frame is None:
+            raise TypeError("A frame is None! Please, check the path to the image, when you read it with OpenCV.")
 
         result_list = []
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -160,12 +165,18 @@ class FER:
             probabilities for each image in the folder.
         """
 
+        if not os.path.exists(path_to_input):
+            raise FileNotFoundError("Please, check the path to the input directory.")
+
         os.makedirs(path_to_output, exist_ok=True)
 
         result_list = []
         path_to_output_file = None
 
         list_files = os.listdir(path_to_input)
+
+        if len(list_files) == 0:
+            warnings.warn(f"The input folder {path_to_input} is empty!")
 
         for file_name in tqdm(list_files):
             print(file_name)
@@ -204,6 +215,9 @@ class FER:
             save_video (bool): Whether to save output video or not.
             fps (int): Number of fps for output video.
         """
+
+        if not os.path.exists(path_to_video):
+            raise FileNotFoundError("Please, check the path to the input video file.")
 
         result_list = []
         frame_array = []
