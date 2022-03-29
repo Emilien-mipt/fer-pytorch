@@ -107,7 +107,7 @@ class FER:
                 if self.model is not None:
                     output = self.model(input)
                 else:
-                    raise TypeError("Nonetype is not callable!")
+                    raise TypeError("Nonetype is not callable! Please, initialize the model and upload the weights.")
                 probs = torch.nn.functional.softmax(output, dim=1).data.cpu().numpy()
 
                 if show_top:
@@ -146,7 +146,7 @@ class FER:
                     )
                     cv2.imwrite(path_to_output, frame)
         else:
-            print("No faces detected!")
+            warnings.warn("No faces detected!")
         return result_list
 
     def predict_list_images(
@@ -235,7 +235,7 @@ class FER:
         for i in tqdm(range(v_len)):
             success, frame = v_cap.read()
             if not success:
-                print(f"The {i}-th frame could not be loaded. Continue processing...")
+                warnings.warn(f"The {i}-th frame could not be loaded. Continue processing...")
                 continue
 
             height, width, layers = frame.shape
@@ -288,7 +288,7 @@ class FER:
             success, frame = cap.read()
 
             if not success:
-                print("The frame could not be loaded. Continue processing...")
+                warnings.warn("The frame could not be loaded. Continue processing...")
                 continue
 
             output_list = self.predict_image(frame, show_top=True)
