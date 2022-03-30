@@ -1,3 +1,6 @@
+import os
+
+from fer_pytorch.config import CFG
 from fer_pytorch.fer import FER
 
 fer = FER()
@@ -5,6 +8,9 @@ fer.get_pretrained_model(model_name="resnet34_best")
 
 
 def test_fer():
+    if not os.path.isdir(CFG.DATASET_PATH):
+        os.system("sh get_data.sh")
+
     test_result = fer.test_fer()
 
     assert isinstance(test_result, dict)

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 
@@ -5,12 +6,13 @@ class CFG:
     # Package path
     PACKAGE_DIR = Path(__file__).resolve().parent
     # Data path
-    TRAIN_PATH = "fer_pytorch/dataset/data/FER2013Train/"
-    TRAIN_CSV = "fer_pytorch/dataset/new_train.csv"
-    VAL_PATH = "fer_pytorch/dataset/data/FER2013Valid/"
-    VAL_CSV = "fer_pytorch/dataset/new_val.csv"
-    TEST_PATH = "fer_pytorch/dataset/data/FER2013Test/"
-    TEST_CSV = "fer_pytorch/dataset/new_test.csv"
+    DATASET_PATH = "fer_pytorch/dataset"
+    TRAIN_PATH = os.path.join(DATASET_PATH, "data/FER2013Train/")
+    TRAIN_CSV = os.path.join(DATASET_PATH, "new_train.csv")
+    VAL_PATH = os.path.join(DATASET_PATH, "data/FER2013Valid/")
+    VAL_CSV = os.path.join(DATASET_PATH, "new_val.csv")
+    TEST_PATH = os.path.join(DATASET_PATH, "data/FER2013Test/")
+    TEST_CSV = os.path.join(DATASET_PATH, "new_test.csv")
     # Logging
     LOG_DIR = "fer_pytorch/logs"
     OUTPUT_DIR = "test_new"
