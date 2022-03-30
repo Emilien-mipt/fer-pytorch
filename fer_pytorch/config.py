@@ -39,7 +39,7 @@ class CFG:
     size = 224
     MEAN = [0.485, 0.456, 0.406]  # ImageNet values
     STD = [0.229, 0.224, 0.225]  # ImageNet values
-    num_workers = 8
+    num_workers = 2
     print_freq = 100
 
     # Optimizer config

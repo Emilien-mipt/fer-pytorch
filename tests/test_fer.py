@@ -8,7 +8,8 @@ fer.get_pretrained_model(model_name="resnet34_best")
 
 
 def test_fer():
-    if not os.path.isdir(CFG.DATASET_PATH):
+    path_to_data = os.path.join(CFG.DATASET_PATH, "data")
+    if not os.path.isdir(path_to_data) or len(os.listdir(path_to_data)) == 0:
         os.system("sh get_data.sh")
 
     test_result = fer.test_fer()

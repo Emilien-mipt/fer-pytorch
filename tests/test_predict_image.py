@@ -51,7 +51,7 @@ def test_happy_values():
 
     result_dict = fer.predict_image(input)[0]
 
-    np.testing.assert_almost_equal(result_dict["box"], [295.90848, 87.36073, 463.75354, 296.00055], decimal=3)
+    np.testing.assert_almost_equal(result_dict["box"], [295.90848, 87.36073, 463.75354, 296.00055], decimal=1)
 
     emotion_dict = result_dict["emotions"]
 
@@ -78,7 +78,7 @@ def test_surprize():
 
     result_dict = fer.predict_image(input)[0]
 
-    np.testing.assert_almost_equal(result_dict["box"], [260.15295, 213.43015, 472.2445, 509.92935], decimal=3)
+    np.testing.assert_almost_equal(result_dict["box"], [260.15295, 213.43015, 472.2445, 509.92935], decimal=1)
 
     emotion_dict = result_dict["emotions"]
 
