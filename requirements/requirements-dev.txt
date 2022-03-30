@@ -1,0 +1,14 @@
+-r requirements.txt
+
+# repo maintenance tooling
+black==22.3.0
+flake8>=3.9.0,<=4.0.1
+isort>=5.8.0.<=5.10.1
+mypy>=0.812,<=0.941
+pre_commit==2.17.0
+
+# testing requirements
+pytest==7.0.1
+
+tensorboard>=2.5.0,<=2.8.0
+torch_lr_finder==0.2.1
