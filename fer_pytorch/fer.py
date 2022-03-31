@@ -49,26 +49,30 @@ class FER:
         self.model: Optional[FERModel] = None
         self.mtcnn = MTCNN(keep_all=True, select_largest=True, device=self.device)
 
-    def get_pretrained_model(self, model_name: str) -> None:
+    def get_pretrained_model(self, model_arch: str, model_name: str) -> None:
         """The method initializes the FER model and uploads the pretrained weights from the internet.
 
         Args:
-            model_name (str): The name that stands for the weights to be uploaded.
+            model_arch (str): Model architecture (timm.list_models() returns a complete list of available models in
+                timm).
+            model_name (str): The name that stands for the weights to be downloaded from the internet.
         """
 
-        self.model = get_pretrained_model(model_name)
+        self.model = get_pretrained_model(model_arch=model_arch, model_name=model_name)
         self.model.to(self.device)
         self.model.eval()
 
-    def load_user_weights(self, path_to_weigths: str) -> None:
+    def load_user_weights(self, model_arch: str, path_to_weights: str) -> None:
         """The method initializes the FER model and uploads the user weights that are stored locally.
 
         Args:
-            path_to_weigths (str): Path to the user weights to be uploaded.
+            model_arch (str): Model architecture (timm.list_models() returns a complete list of available models in
+                timm).
+            path_to_weights (str): Path to the user weights to be loaded by the model.
         """
 
-        self.model = FERModel(model_arch=CFG.model_name, pretrained=False)
-        self.model.load_weights(path_to_weigths)
+        self.model = FERModel(model_arch=model_arch, pretrained=False)
+        self.model.load_weights(path_to_weights)
         self.model.to(self.device)
         self.model.eval()
 

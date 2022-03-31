@@ -2,7 +2,6 @@ from collections import namedtuple
 
 from torch.utils import model_zoo
 
-from fer_pytorch.config import CFG
 from fer_pytorch.model import FERModel
 
 model = namedtuple("model", ["url", "model"])
@@ -15,8 +14,8 @@ models = {
 }
 
 
-def get_pretrained_model(model_name: str) -> FERModel:
-    model = models[model_name].model(model_arch=CFG.model_name, pretrained=False)
+def get_pretrained_model(model_arch: str, model_name: str) -> FERModel:
+    model = models[model_name].model(model_arch=model_arch, pretrained=False)
     weights = model_zoo.load_url(models[model_name].url, progress=True, map_location="cpu")
     if "model" in weights:
         state_dict = weights["model"]

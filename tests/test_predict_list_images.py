@@ -8,7 +8,7 @@ from fer_pytorch.fer import FER
 PATH_TO_FOLDER = "tests/test_images/"
 
 fer = FER()
-fer.get_pretrained_model(model_name="resnet34_best")
+fer.get_pretrained_model(model_arch="resnet34", model_name="resnet34_best")
 
 
 def test_predict_list_images():

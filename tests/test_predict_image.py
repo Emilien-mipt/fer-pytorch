@@ -9,7 +9,7 @@ PATH_SURPRIZE = "tests/test_images/surprize.jpg"
 PATH_NOFACE = "tests/test_images/no_face.jpg"
 
 fer = FER()
-fer.get_pretrained_model(model_name="resnet34_best")
+fer.get_pretrained_model(model_arch="resnet34", model_name="resnet34_best")
 
 
 def test_with_face_types():

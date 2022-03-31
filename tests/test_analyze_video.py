@@ -10,7 +10,7 @@ URL = "https://github.com/Emilien-mipt/FERplus-Pytorch/releases/download/0.0.2/t
 PATH_TO_VIDEO = "tests/test_video.mp4"
 
 fer = FER()
-fer.get_pretrained_model(model_name="resnet34_best")
+fer.get_pretrained_model(model_arch="resnet34", model_name="resnet34_best")
 
 
 def test_analyze_video():
