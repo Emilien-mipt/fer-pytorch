@@ -1,138 +1,63 @@
-import time
-from typing import Any, Callable, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
-import numpy as np
+import pytorch_lightning as pl
 import torch
-from torch.cuda.amp import GradScaler
+import torchmetrics
+from pytorch_lightning.core.optimizer import LightningOptimizer
+from torch.nn import functional as F
 from torch.optim import Optimizer
-from torch.utils.data import DataLoader
-from tqdm import tqdm
 
 from fer_pytorch.config import CFG
 from fer_pytorch.model import FERModel
-from fer_pytorch.utils.utils import AverageMeter, timeSince
 
 
-def train_fn(
-    train_loader: DataLoader,
-    model: FERModel,
-    criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
-    optimizer: Optimizer,
-    scaler: GradScaler,
-    epoch: int,
-    device: torch.device,
-    scheduler: Any,
-) -> Tuple[float, float]:
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
-    losses = AverageMeter()
-    accuracy = AverageMeter()
-    # switch to train mode
-    model.train()
-    start = end = time.time()
+class FERPLModel(pl.LightningModule):
+    """
+    The FER Pytorch Lightning class.
 
-    # Iterate over dataloader
-    for i, (images, labels) in enumerate(tqdm(train_loader)):
-        # measure data loading time
-        data_time.update(time.time() - end)
-        # zero the gradients
-        optimizer.zero_grad()
+    Implemented for training of the Facial Emotion Recognition model on FER+ dataset.
+    """
 
-        images = images.to(device)
-        labels = labels.to(device)
+    def __init__(self) -> None:
+        super().__init__()
+        self.accuracy = torchmetrics.Accuracy()
+        self.f1_score = torchmetrics.F1Score(num_classes=CFG.target_size, average="weighted")
+        self.model = FERModel(model_arch=CFG.model_name, pretrained=CFG.pretrained)
 
-        batch_size = labels.size(0)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)
 
-        if CFG.MIXED_PREC:
-            # Runs the forward pass with autocasting
-            with torch.cuda.amp.autocast():
-                y_preds = model(images)
-                loss = criterion(y_preds, labels)
-            # Scales loss.  Calls backward() on scaled loss to create scaled gradients
-            # Backward ops run in the same dtype autocast chose for corresponding forward ops.
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            # Updates the scale for next iteration.
-            scaler.update()
-        else:
-            y_preds = model(images)
-            loss = criterion(y_preds, labels)
-            # Compute gradients and do step
-            loss.backward()
-            optimizer.step()
-        if scheduler is not None:
-            scheduler.step()
+    def configure_optimizers(self) -> Tuple[Union[Optimizer, List[Optimizer], List[LightningOptimizer]], List[Any]]:
+        optimizer = torch.optim.SGD(
+            self.model.parameters(), lr=CFG.lr, momentum=CFG.momentum, weight_decay=CFG.weight_decay
+        )
+        lr_scheduler = torch.optim.lr_scheduler.CyclicLR(
+            optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=1319
+        )
+        scheduler = {"scheduler": lr_scheduler, "interval": "step"}
+        return [optimizer], [scheduler]
 
-        # record loss
-        losses.update(loss.item(), batch_size)
-        classes = y_preds.argmax(dim=1)
-        acc = torch.mean((classes == labels).float())
-        accuracy.update(acc, batch_size)
+    def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
+        images, labels = batch
+        predictions = self.model(images)
+        predicted_classes = predictions.argmax(dim=1)
+        loss = F.cross_entropy(predictions, labels)
+        acc = self.accuracy(predicted_classes, labels)
+        self.log("train_loss", loss, prog_bar=True, on_step=False, on_epoch=True, logger=True)
+        self.log("train_acc", acc, prog_bar=True, on_step=False, on_epoch=True, logger=True)
+        return loss
 
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
-        if i % CFG.print_freq == 0 or i == (len(train_loader) - 1):
-            print(
-                "Epoch: [{Epoch:d}][{Iter:d}/{Len:d}] "
-                "Data {data_time.val:.3f} ({data_time.avg:.3f}) "
-                "Elapsed {remain:s} "
-                "Loss: {loss.val:.4f}({loss.avg:.4f}) ".format(
-                    Epoch=epoch + 1,
-                    Iter=i,
-                    Len=len(train_loader),
-                    data_time=data_time,
-                    loss=losses,
-                    remain=timeSince(start, float(i + 1) / len(train_loader)),
-                )
-            )
-    return losses.avg, accuracy.avg
+    def validation_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> Dict[str, torch.Tensor]:
+        images, labels = batch
+        predictions = self.model(images)
+        predicted_classes = predictions.argmax(dim=1)
+        loss = F.cross_entropy(predictions, labels)
+        acc = self.accuracy(predicted_classes, labels)
+        f1 = self.f1_score(predicted_classes, labels)
+        self.log("val_loss", loss, prog_bar=True, on_step=False, on_epoch=True, logger=True)
+        self.log("val_acc", acc, prog_bar=True, on_step=False, on_epoch=True, logger=True)
+        self.log("val_f1", f1, prog_bar=True, on_step=False, on_epoch=True, logger=True)
+        return {"Accuracy": acc, "F1_score": f1}
 
-
-def valid_fn(
-    valid_loader: DataLoader,
-    model: FERModel,
-    criterion: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
-    device: torch.device,
-) -> Tuple[float, np.array]:
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
-    losses = AverageMeter()
-    preds = []
-    # switch to evaluation mode
-    model.eval()
-    start = end = time.time()
-    for step, (images, labels) in enumerate(valid_loader):
-        # measure data loading time
-        data_time.update(time.time() - end)
-        images = images.to(device)
-        labels = labels.to(device)
-        batch_size = labels.size(0)
-
-        # compute loss
-        with torch.no_grad():
-            y_preds = model(images)
-        loss = criterion(y_preds, labels)
-        losses.update(loss.item(), batch_size)
-
-        # record accuracy
-        preds.append(y_preds.softmax(1).to("cpu").numpy())
-
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
-        if step % CFG.print_freq == 0 or step == (len(valid_loader) - 1):
-            print(
-                "EVAL: [{Step:d}/{Len:d}] "
-                "Data {data_time.val:.3f} ({data_time.avg:.3f}) "
-                "Elapsed {remain:s} "
-                "Loss: {loss.val:.4f}({loss.avg:.4f}) ".format(
-                    Step=step,
-                    Len=len(valid_loader),
-                    data_time=data_time,
-                    loss=losses,
-                    remain=timeSince(start, float(step + 1) / len(valid_loader)),
-                )
-            )
-    predictions = np.concatenate(preds)
-    return losses.avg, predictions
+    def test_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> Dict[str, torch.Tensor]:
+        return self.validation_step(batch, batch_idx)

@@ -1,5 +1,3 @@
-import os
-
 import timm
 import torch
 import torch.nn as nn
@@ -15,19 +13,6 @@ class FERModel(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.model(x)
         return x
-
-    def save(self, epoch: int, trainloss: float, valloss: float, metric: float, name: str) -> None:
-
-        torch.save(
-            {
-                "model": self.model.state_dict(),
-                "epoch": epoch,
-                "train_loss": trainloss,
-                "val_loss": valloss,
-                "metric_loss": metric,
-            },
-            os.path.join(os.path.join(CFG.LOG_DIR, CFG.OUTPUT_DIR, "weights"), name),
-        )
 
     def load_weights(self, path_to_weights: str) -> None:
         cp = torch.load(path_to_weights)
