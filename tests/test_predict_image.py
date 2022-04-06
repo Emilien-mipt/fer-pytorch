@@ -9,12 +9,13 @@ PATH_SURPRIZE = "tests/test_images/surprize.jpg"
 PATH_NOFACE = "tests/test_images/no_face.jpg"
 
 fer = FER()
-fer.get_pretrained_model(model_arch="resnet34", model_name="resnet34_best")
+fer.get_pretrained_model(model_name="resnet34")
 
 
 def test_with_face_types():
     input = cv2.imread(PATH_HAPPY)
 
+    # Test full output
     result = fer.predict_image(input)
     assert isinstance(result, list)
     assert len(result) == 1
@@ -26,6 +27,7 @@ def test_with_face_types():
     assert isinstance(result_dict["box"], list)
     assert isinstance(result_dict["emotions"], dict)
 
+    # Test top output
     result_top = fer.predict_image(input, show_top=True)
     assert isinstance(result_top, list)
     assert len(result_top) == 1
@@ -91,7 +93,7 @@ def test_surprize():
         and ("disgust" in emotion_dict.keys())
         and ("fear" in emotion_dict.keys())
     )
-    assert emotion_dict["surprise"] > 0.95
+    assert emotion_dict["surprise"] > 0.9
 
     sum_probs = 0
     for value in emotion_dict.values():

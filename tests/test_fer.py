@@ -4,7 +4,7 @@ from fer_pytorch.config import CFG
 from fer_pytorch.fer import FER
 
 fer = FER()
-fer.get_pretrained_model(model_arch="resnet34", model_name="resnet34_best")
+fer.get_pretrained_model(model_name="resnet34")
 
 
 def test_fer():

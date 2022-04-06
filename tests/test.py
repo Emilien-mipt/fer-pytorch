@@ -3,7 +3,7 @@ import cv2
 from fer_pytorch.fer import FER
 
 fer = FER()
-fer.get_pretrained_model(model_arch="resnet34", model_name="resnet34_best")
+fer.get_pretrained_model(model_name="resnet34")
 
 frame = cv2.imread("tests/test_images/happy.jpg")
 result = fer.predict_image(frame)

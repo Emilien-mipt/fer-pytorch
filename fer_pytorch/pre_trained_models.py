@@ -8,8 +8,8 @@ model = namedtuple("model", ["url", "model"])
 
 models = {
     "resnet34": model(
-        url="https://github.com/Emilien-mipt/fer-pytorch/releases/download/0.0.1/resnet34-epoch.12-val_loss.0.494"
-        "-val_acc.0.846-val_f1.0.843.ckpt",
+        url="https://github.com/Emilien-mipt/fer-pytorch/releases/download/0.0.1/"
+        "resnet34-epoch.12-val_loss.0.494-val_acc.0.846-val_f1.0.843.ckpt",
         model=FERModel,
     )
 }
