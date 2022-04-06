@@ -1,11 +1,9 @@
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, List, Tuple
 
 import pytorch_lightning as pl
 import torch
 import torchmetrics
-from pytorch_lightning.core.optimizer import LightningOptimizer
 from torch.nn import functional as F
-from torch.optim import Optimizer
 
 from fer_pytorch.config import CFG
 from fer_pytorch.model import FERModel
@@ -24,10 +22,10 @@ class FERPLModel(pl.LightningModule):
         self.f1_score = torchmetrics.F1Score(num_classes=CFG.target_size, average="weighted")
         self.model = FERModel(model_arch=CFG.model_name, pretrained=CFG.pretrained)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor):  # type: ignore
         return self.model(x)
 
-    def configure_optimizers(self) -> Tuple[Union[Optimizer, List[Optimizer], List[LightningOptimizer]], List[Any]]:
+    def configure_optimizers(self) -> Tuple[List[Any], List[Any]]:
         optimizer = torch.optim.SGD(
             self.model.parameters(), lr=CFG.lr, momentum=CFG.momentum, weight_decay=CFG.weight_decay
         )
@@ -37,7 +35,7 @@ class FERPLModel(pl.LightningModule):
         scheduler = {"scheduler": lr_scheduler, "interval": "step"}
         return [optimizer], [scheduler]
 
-    def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
+    def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int):  # type: ignore
         images, labels = batch
         predictions = self.model(images)
         predicted_classes = predictions.argmax(dim=1)
@@ -47,7 +45,7 @@ class FERPLModel(pl.LightningModule):
         self.log("train_acc", acc, prog_bar=True, on_step=False, on_epoch=True, logger=True)
         return loss
 
-    def validation_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> Dict[str, torch.Tensor]:
+    def validation_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int):  # type: ignore
         images, labels = batch
         predictions = self.model(images)
         predicted_classes = predictions.argmax(dim=1)
@@ -59,5 +57,5 @@ class FERPLModel(pl.LightningModule):
         self.log("val_f1", f1, prog_bar=True, on_step=False, on_epoch=True, logger=True)
         return {"Accuracy": acc, "F1_score": f1}
 
-    def test_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> Dict[str, torch.Tensor]:
+    def test_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int):  # type: ignore
         return self.validation_step(batch, batch_idx)
