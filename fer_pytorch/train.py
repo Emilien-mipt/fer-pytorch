@@ -15,7 +15,7 @@ class FERPLModel(pl.LightningModule):
     """
     The FER Pytorch Lightning class.
 
-    Implemented for training of the Facial Emotion Recognition model on FER+ dataset.
+    Implemented for training and validation of the Facial Emotion Recognition model on FER+ dataset.
     """
 
     def __init__(self) -> None:

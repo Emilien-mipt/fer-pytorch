@@ -96,8 +96,10 @@ def main() -> None:
 
     fer_model = FERPLModel()
 
+    arch_name = CFG.model_name
+
     checkpoint_callback = ModelCheckpoint(
-        filename="fer_model-{epoch:02d}-{val_loss:.3f}-{val_acc:.3f}-{val_f1:.3f}",
+        filename="".join([arch_name, "-{epoch:02d}-{val_loss:.3f}-{val_acc:.3f}-{val_f1:.3f}"]),
         monitor="val_f1",
         mode="max",
         save_weights_only=True,
