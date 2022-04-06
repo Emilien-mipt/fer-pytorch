@@ -7,41 +7,18 @@ from fer_pytorch.model import FERModel
 model = namedtuple("model", ["url", "model"])
 
 models = {
-    "resnet34_best": model(
-        url="https://github.com/Emilien-mipt/FERplus-Pytorch/releases/download/0.0.1/resnet34_best.pt",
+    "resnet34": model(
+        url="https://github.com/Emilien-mipt/fer-pytorch/releases/download/0.0.1/resnet34-epoch.12-val_loss.0.494"
+        "-val_acc.0.846-val_f1.0.843.ckpt",
         model=FERModel,
     )
 }
 
 
-def get_pretrained_model(model_arch: str, model_name: str) -> FERModel:
-    model = models[model_name].model(model_arch=model_arch, pretrained=False)
-    weights = model_zoo.load_url(models[model_name].url, progress=True, map_location="cpu")
-    if "model" in weights:
-        state_dict = weights["model"]
-    else:
-        state_dict = weights
-    state_dict = {".".join(["model", k]): v for k, v in state_dict.items()}
-    model.load_state_dict(state_dict)
-
-    epoch, train_loss, val_loss, metric_loss = None, None, None, None
-    if "epoch" in weights:
-        epoch = int(weights["epoch"])
-    if "train_loss" in weights:
-        train_loss = weights["train_loss"]
-    if "val_loss" in weights:
-        val_loss = weights["val_loss"]
-    if "metric_loss" in weights:
-        metric_loss = weights["metric_loss"]
-    print(
-        "Uploading model from the checkpoint...",
-        "\nEpoch:",
-        epoch,
-        "\nTrain Loss:",
-        train_loss,
-        "\nVal Loss:",
-        val_loss,
-        "\nMetrics:",
-        metric_loss,
-    )
-    return model
+def get_pretrained_model(model_name: str) -> FERModel:
+    fer_model = models[model_name].model(model_arch=model_name, pretrained=False)
+    cp = model_zoo.load_url(models[model_name].url, progress=True, map_location="cpu")
+    state_dict = cp["state_dict"]
+    state_dict = {k.replace("model.model.", "model."): v for k, v in state_dict.items()}
+    fer_model.load_state_dict(state_dict)
+    return fer_model

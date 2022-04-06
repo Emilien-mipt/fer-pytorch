@@ -49,16 +49,15 @@ class FER:
         self.model: Optional[FERModel] = None
         self.mtcnn = MTCNN(keep_all=True, select_largest=True, device=self.device)
 
-    def get_pretrained_model(self, model_arch: str, model_name: str) -> None:
+    def get_pretrained_model(self, model_name: str) -> None:
         """The method initializes the FER model and uploads the pretrained weights from the internet.
 
         Args:
-            model_arch (str): Model architecture (timm.list_models() returns a complete list of available models in
-                timm).
-            model_name (str): The name that stands for the weights to be downloaded from the internet.
+            model_name (str): The name that stands for the weights to be downloaded from the internet. The name
+            coincides with the name of the model for convenience.
         """
 
-        self.model = get_pretrained_model(model_arch=model_arch, model_name=model_name)
+        self.model = get_pretrained_model(model_name=model_name)
         self.model.to(self.device)
         self.model.eval()
 
