@@ -37,6 +37,7 @@ MANIFEST
 # weights
 weights/
 *.pt
+*.ckpt
 
 # Pycharm cache
 .idea/

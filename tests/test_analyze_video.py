@@ -10,7 +10,7 @@ URL = "https://github.com/Emilien-mipt/FERplus-Pytorch/releases/download/0.0.2/t
 PATH_TO_VIDEO = "tests/test_video.mp4"
 
 fer = FER()
-fer.get_pretrained_model(model_name="resnet34_best")
+fer.get_pretrained_model(model_name="resnet34")
 
 
 def test_analyze_video():
@@ -36,7 +36,7 @@ def test_analyze_video():
     assert (result_df["probability"][:9] > 0.9).all()
     assert (result_df["emotion"][:10] == "happiness").all()
 
-    assert (result_df["probability"][-20:] > 0.9).all()
+    assert (result_df["probability"][-20:] > 0.8).all()
     assert (result_df["emotion"][-20:] == "anger").all()
 
     shutil.rmtree(path_to_output)

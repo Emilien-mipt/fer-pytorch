@@ -8,7 +8,7 @@ from fer_pytorch.fer import FER
 PATH_TO_FOLDER = "tests/test_images/"
 
 fer = FER()
-fer.get_pretrained_model(model_name="resnet34_best")
+fer.get_pretrained_model(model_name="resnet34")
 
 
 def test_predict_list_images():
@@ -34,6 +34,6 @@ def test_predict_list_images():
 
     result_df.dropna(inplace=True)
 
-    assert (result_df["probability"] > 0.8).all()
+    assert (result_df["probability"] > 0.75).all()
 
     shutil.rmtree(output_dir)
