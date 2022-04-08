@@ -1,0 +1,7 @@
+trainer_params:
+    precision: 32
+    max_epochs: 50
+    accelerator: "gpu"
+    devices: 2
+    strategy: "ddp"
+    resume_from_checkpoint: null

@@ -3,10 +3,11 @@ from typing import Any, List, Tuple
 import pytorch_lightning as pl
 import torch
 import torchmetrics
+from omegaconf import DictConfig
 from torch.nn import functional as F
 
-from fer_pytorch.config import CFG
 from fer_pytorch.model import FERModel
+from fer_pytorch.utils.utils import load_obj
 
 
 class FERPLModel(pl.LightningModule):
@@ -16,22 +17,24 @@ class FERPLModel(pl.LightningModule):
     Implemented for training and validation of the Facial Emotion Recognition model on FER+ dataset.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, cfg: DictConfig) -> None:
         super().__init__()
+        self.cfg = cfg
         self.accuracy = torchmetrics.Accuracy()
-        self.f1_score = torchmetrics.F1Score(num_classes=CFG.target_size, average="weighted")
-        self.model = FERModel(model_arch=CFG.model_name, pretrained=CFG.pretrained)
+        self.f1_score = torchmetrics.F1Score(num_classes=self.cfg.dataset.target_size, average="weighted")
+
+        self.model = FERModel(
+            model_arch=self.cfg.model.model_name,
+            pretrained=self.cfg.model.pretrained,
+            num_classes=cfg.dataset.target_size,
+        )
 
     def forward(self, x: torch.Tensor):  # type: ignore
         return self.model(x)
 
     def configure_optimizers(self) -> Tuple[List[Any], List[Any]]:
-        optimizer = torch.optim.SGD(
-            self.model.parameters(), lr=CFG.lr, momentum=CFG.momentum, weight_decay=CFG.weight_decay
-        )
-        lr_scheduler = torch.optim.lr_scheduler.CyclicLR(
-            optimizer, base_lr=CFG.min_lr, max_lr=CFG.lr, mode="triangular2", step_size_up=1319
-        )
+        optimizer = load_obj(self.cfg.optimizer.class_name)(self.model.parameters(), **self.cfg.optimizer.params)
+        lr_scheduler = load_obj(self.cfg.scheduler.class_name)(optimizer, **self.cfg.scheduler.params)
         scheduler = {"scheduler": lr_scheduler, "interval": "step"}
         return [optimizer], [scheduler]
 

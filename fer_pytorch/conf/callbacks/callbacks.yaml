@@ -1,0 +1,14 @@
+early_stopping:
+  class_name: pl.callbacks.EarlyStopping
+  params:
+    monitor: 'val_loss'
+    strict: True
+    patience: 7
+    mode: 'min'
+
+model_checkpoint:
+  class_name: pl.callbacks.ModelCheckpoint
+  params:
+    monitor: 'val_f1'
+    mode: 'max'
+    save_weights_only: True

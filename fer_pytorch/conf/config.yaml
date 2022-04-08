@@ -1,0 +1,14 @@
+defaults:
+  - dataset: fer_dataset
+  - trainer: default_trainer
+  - model: fer_model
+  - optimizer: SGD
+  - scheduler: Cyclic
+  - callbacks: callbacks
+  - _self_
+
+general:
+  seed: 42
+  save_single_batch: False
+  batch_size: 32
+  num_workers: 4

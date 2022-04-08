@@ -1,0 +1,6 @@
+class_name: torch.optim.lr_scheduler.CyclicLR
+params:
+  base_lr: 1e-2
+  max_lr: 2e-2
+  mode: "triangular2"
+  step_size_up: 1319
