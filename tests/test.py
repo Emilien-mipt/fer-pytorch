@@ -1,13 +1,8 @@
 import cv2
 
 from fer_pytorch.fer import FER
-from fer_pytorch.inference_config import CFG
 
-cfg = CFG()
-
-cfg.device_id = 1
-
-fer = FER(cfg)
+fer = FER()
 print(fer.device)
 
 fer.get_pretrained_model(model_name="resnet34")

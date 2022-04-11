@@ -16,7 +16,6 @@ from sklearn.metrics import accuracy_score, f1_score
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from fer_pytorch.inference_config import CFG
 from fer_pytorch.model import FERModel
 from fer_pytorch.pre_trained_models import get_pretrained_model
 from fer_pytorch.train_test_dataset import FERDataset
@@ -32,9 +31,10 @@ class FER:
     (image, list of images, video files and e.t.c.)
     """
 
-    def __init__(self, cfg: CFG) -> None:
-        self.cfg = cfg
-        self.device = torch.device(f"cuda:{self.cfg.device_id}" if torch.cuda.is_available() else "cpu")
+    def __init__(self, size: int = 224, device: int = 0) -> None:
+        self.device_id = device
+        self.device = torch.device(f"cuda:{self.device_id}" if torch.cuda.is_available() else "cpu")
+        self.size = size
         self.model: Optional[FERModel] = None
         self.mtcnn = MTCNN(keep_all=True, select_largest=True, device=self.device)
 
@@ -83,12 +83,11 @@ class FER:
 
         fer_transforms = transforms.Compose(
             [
-                transforms.Resize(self.cfg.size),
+                transforms.Resize(self.size),
                 transforms.ToTensor(),
                 transforms.Lambda(lambda t: t.repeat(3, 1, 1)),
                 transforms.Normalize(
-                    mean=self.cfg.mean,
-                    std=self.cfg.std,
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]  # ImageNet values  # ImageNet values
                 ),
             ]
         )
@@ -318,7 +317,13 @@ class FER:
         cap.release()
         cv2.destroyAllWindows()
 
-    def test_fer(self) -> Dict[str, Any]:
+    def test_fer(
+        self,
+        path_to_dataset: str = "fer_pytorch/dataset",
+        path_to_csv: str = "fer_pytorch/dataset/new_test.csv",
+        batch_size: int = 32,
+        num_workers: int = 8,
+    ) -> Dict[str, Any]:
         """The method is intended for convenient calculation of metrics (accuracy and f1 score) on the test part of the
         FER dataset.
 
@@ -326,27 +331,22 @@ class FER:
             The dictionary with accuracy and f1 score values.
         """
 
-        test_fold = pd.read_csv(self.cfg.TEST_CSV)
+        test_fold = pd.read_csv(path_to_csv)
 
         test_transforms = A.Compose(
             [
-                A.Resize(self.cfg.size, self.cfg.size),
-                A.Normalize(
-                    mean=self.cfg.mean,
-                    std=self.cfg.std,
-                ),
+                A.Resize(self.size, self.size),
+                A.Normalize(),
                 ToTensorV2(),
             ]
         )
 
-        test_dataset = FERDataset(
-            test_fold, path_to_dataset=self.cfg.DATASET_PATH, mode="test", transform=test_transforms
-        )
+        test_dataset = FERDataset(test_fold, path_to_dataset=path_to_dataset, mode="test", transform=test_transforms)
         test_loader = DataLoader(
             test_dataset,
-            batch_size=self.cfg.batch_size,
+            batch_size=batch_size,
             shuffle=False,
-            num_workers=self.cfg.num_workers,
+            num_workers=num_workers,
             pin_memory=True,
             drop_last=False,
         )
