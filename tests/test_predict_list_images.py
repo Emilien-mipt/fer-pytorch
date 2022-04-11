@@ -4,10 +4,13 @@ import shutil
 import numpy as np
 
 from fer_pytorch.fer import FER
+from fer_pytorch.inference_config import CFG
 
 PATH_TO_FOLDER = "tests/test_images/"
 
-fer = FER()
+cfg = CFG()
+
+fer = FER(cfg)
 fer.get_pretrained_model(model_name="resnet34")
 
 

@@ -1,8 +1,15 @@
 import cv2
 
 from fer_pytorch.fer import FER
+from fer_pytorch.inference_config import CFG
 
-fer = FER()
+cfg = CFG()
+
+cfg.device_id = 1
+
+fer = FER(cfg)
+print(fer.device)
+
 fer.get_pretrained_model(model_name="resnet34")
 
 frame = cv2.imread("tests/test_images/happy.jpg")

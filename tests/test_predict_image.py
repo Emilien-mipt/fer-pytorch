@@ -2,13 +2,16 @@ import cv2
 import numpy as np
 
 from fer_pytorch.fer import FER
+from fer_pytorch.inference_config import CFG
 
 PATH_HAPPY = "tests/test_images/happy.jpg"
 PATH_SURPRIZE = "tests/test_images/surprize.jpg"
 
 PATH_NOFACE = "tests/test_images/no_face.jpg"
 
-fer = FER()
+cfg = CFG()
+
+fer = FER(cfg)
 fer.get_pretrained_model(model_name="resnet34")
 
 

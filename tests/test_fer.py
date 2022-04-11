@@ -1,9 +1,11 @@
 import os
 
-from fer_pytorch.config import CFG
 from fer_pytorch.fer import FER
+from fer_pytorch.inference_config import CFG
 
-fer = FER()
+cfg = CFG()
+
+fer = FER(cfg)
 fer.get_pretrained_model(model_name="resnet34")
 
 

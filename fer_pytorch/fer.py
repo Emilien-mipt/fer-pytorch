@@ -3,36 +3,25 @@ import os
 import warnings
 from typing import Any, Dict, List, Optional, Union
 
+import albumentations as A
 import cv2
 import numpy as np
 import pandas as pd
 import torch
 import torchvision.transforms as transforms
+from albumentations.pytorch import ToTensorV2
 from facenet_pytorch import MTCNN
 from PIL import Image
 from sklearn.metrics import accuracy_score, f1_score
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from fer_pytorch.augmentations import get_transforms
-from fer_pytorch.config import CFG
+from fer_pytorch.inference_config import CFG
 from fer_pytorch.model import FERModel
 from fer_pytorch.pre_trained_models import get_pretrained_model
 from fer_pytorch.train_test_dataset import FERDataset
 
 emotion_dict = {0: "neutral", 1: "happiness", 2: "surprise", 3: "sadness", 4: "anger", 5: "disgust", 6: "fear"}
-
-fer_transforms = transforms.Compose(
-    [
-        transforms.Resize(CFG.size),
-        transforms.ToTensor(),
-        transforms.Lambda(lambda x: x.repeat(3, 1, 1)),
-        transforms.Normalize(
-            mean=CFG.MEAN,
-            std=CFG.STD,
-        ),
-    ]
-)
 
 
 class FER:
@@ -43,9 +32,9 @@ class FER:
     (image, list of images, video files and e.t.c.)
     """
 
-    def __init__(self, device_rank: int = 0) -> None:
-        self.device_rank = device_rank
-        self.device = torch.device(f"cuda:{self.device_rank}" if torch.cuda.is_available() else "cpu")
+    def __init__(self, cfg: CFG) -> None:
+        self.cfg = cfg
+        self.device = torch.device(f"cuda:{self.cfg.device_id}" if torch.cuda.is_available() else "cpu")
         self.model: Optional[FERModel] = None
         self.mtcnn = MTCNN(keep_all=True, select_largest=True, device=self.device)
 
@@ -91,6 +80,18 @@ class FER:
             The list of dictionaries with bounding box coordinates and recognized emotion probabilities for all the
             people detected on the image.
         """
+
+        fer_transforms = transforms.Compose(
+            [
+                transforms.Resize(self.cfg.size),
+                transforms.ToTensor(),
+                transforms.Lambda(lambda t: t.repeat(3, 1, 1)),
+                transforms.Normalize(
+                    mean=self.cfg.mean,
+                    std=self.cfg.std,
+                ),
+            ]
+        )
 
         if frame is None:
             raise TypeError("A frame is None! Please, check the path to the image, when you read it with OpenCV.")
@@ -325,14 +326,27 @@ class FER:
             The dictionary with accuracy and f1 score values.
         """
 
-        test_fold = pd.read_csv(CFG.TEST_CSV)
+        test_fold = pd.read_csv(self.cfg.TEST_CSV)
 
-        test_dataset = FERDataset(test_fold, mode="test", transform=get_transforms(data="valid"))
+        test_transforms = A.Compose(
+            [
+                A.Resize(self.cfg.size, self.cfg.size),
+                A.Normalize(
+                    mean=self.cfg.mean,
+                    std=self.cfg.std,
+                ),
+                ToTensorV2(),
+            ]
+        )
+
+        test_dataset = FERDataset(
+            test_fold, path_to_dataset=self.cfg.DATASET_PATH, mode="test", transform=test_transforms
+        )
         test_loader = DataLoader(
             test_dataset,
-            batch_size=CFG.batch_size,
+            batch_size=self.cfg.batch_size,
             shuffle=False,
-            num_workers=CFG.num_workers,
+            num_workers=self.cfg.num_workers,
             pin_memory=True,
             drop_last=False,
         )
