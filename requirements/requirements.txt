@@ -1,5 +1,6 @@
 albumentations>=0.5.2,<=1.0.0
 facenet_pytorch==2.5.2
+hydra-core==1.1.1
 matplotlib==3.3.4
 numpy==1.19.5
 opencv-python>=4.5.1.48,<=4.5.5.64

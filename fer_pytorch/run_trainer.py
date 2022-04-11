@@ -1,125 +1,93 @@
-import argparse
 import os
 
+import hydra
 import pandas as pd
+from omegaconf import DictConfig
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from torch.utils.data import DataLoader
 
 from fer_pytorch.augmentations import get_transforms
-from fer_pytorch.config import CFG
 from fer_pytorch.train import FERPLModel
 from fer_pytorch.train_test_dataset import FERDataset
-from fer_pytorch.utils.utils import init_logger, save_batch
+from fer_pytorch.utils.utils import save_batch
 
 CLASS_NAMES = ["neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear"]
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Define whether to save train batch figs or find optimal learning rate"
+def run_trainer(cfg: DictConfig) -> None:
+    """
+    Run pytorch-lightning model.
+    Args:
+        cfg: hydra config
+    """
+
+    path_to_root = hydra.utils.get_original_cwd()
+    path_to_dataset = os.path.join(path_to_root, cfg.dataset.path_to_dataset)
+
+    seed_everything(cfg.general.seed, workers=True)
+
+    train_fold = pd.read_csv(os.path.join(path_to_dataset, cfg.dataset.train_csv))
+    print(f"train shape: {train_fold.shape}")
+    print(train_fold.groupby([cfg.dataset.target_col]).size())
+
+    valid_fold = pd.read_csv(os.path.join(path_to_dataset, cfg.dataset.val_csv))
+    print(f"valid shape: {valid_fold.shape}")
+    print(valid_fold.groupby([cfg.dataset.target_col]).size())
+
+    train_dataset = FERDataset(
+        train_fold, path_to_dataset=path_to_dataset, mode="train", transform=get_transforms(data="train", cfg=cfg)
     )
-    parser.add_argument(
-        "--save_batch_fig",
-        action="store_true",
-        help="Whether to save a sample of a batch or not",
+    valid_dataset = FERDataset(
+        valid_fold, path_to_dataset=path_to_dataset, mode="valid", transform=get_transforms(data="valid", cfg=cfg)
     )
-
-    args = parser.parse_args()
-    save_single_batch = args.save_batch_fig
-
-    # Path to log
-    logger_path = os.path.join(CFG.LOG_DIR, CFG.OUTPUT_DIR)
-
-    os.makedirs(os.path.join(logger_path), exist_ok=True)
-
-    # Define logger to save train logs
-    logger = init_logger(os.path.join(logger_path, "train.log"))
-
-    # Set seed
-    seed_everything(42, workers=True)
-
-    logger.info("Reading data...")
-    train_fold = pd.read_csv(CFG.TRAIN_CSV)
-
-    logger.info("train shape: ")
-    logger.info(train_fold.shape)
-
-    valid_fold = pd.read_csv(CFG.VAL_CSV)
-    logger.info("valid shape: ")
-    logger.info(valid_fold.shape)
-
-    logger.info("train fold: ")
-    logger.info(train_fold.groupby([CFG.target_col]).size())
-    logger.info("validation fold: ")
-    logger.info(valid_fold.groupby([CFG.target_col]).size())
-
-    train_dataset = FERDataset(train_fold, mode="train", transform=get_transforms(data="train"))
-    valid_dataset = FERDataset(valid_fold, mode="valid", transform=get_transforms(data="valid"))
 
     train_loader = DataLoader(
         train_dataset,
-        batch_size=CFG.batch_size,
+        batch_size=cfg.general.batch_size,
         shuffle=True,
-        num_workers=CFG.num_workers,
+        num_workers=cfg.general.num_workers,
         pin_memory=True,
         drop_last=True,
     )
     valid_loader = DataLoader(
         valid_dataset,
-        batch_size=CFG.batch_size,
+        batch_size=cfg.general.batch_size,
         shuffle=False,
-        num_workers=CFG.num_workers,
+        num_workers=cfg.general.num_workers,
         pin_memory=True,
         drop_last=False,
     )
 
     # Save batch with images after applying transforms to see the effect of augmentations
-    if save_single_batch:
-        logger.info("Creating dir to save samples of a batch...")
-        path_to_figs = os.path.join(logger_path, "batch_figs")
-        os.makedirs(path_to_figs)
-        logger.info("Saving figures of a single batch...")
-        save_batch(train_loader, CLASS_NAMES, path_to_figs, CFG.MEAN, CFG.STD)
-        logger.info("Figures have been saved!")
+    if cfg.general.save_single_batch:
+        print("Creating dir to save samples of a batch...")
+        path_to_figs = "batch_imgs/"
+        os.makedirs(path_to_figs, exist_ok=True)
+        print("Saving figures of a single batch...")
+        save_batch(train_loader, CLASS_NAMES, path_to_figs, cfg.dataset.mean, cfg.dataset.std)
+        print("Figures have been saved!")
 
-    logger.info(f"Batch size {CFG.batch_size}")
-    logger.info(f"Input size {CFG.size}")
-    logger.info("Select CrossEntropyLoss criterion")
+    fer_model = FERPLModel(cfg)
 
-    precision = 32
+    filename = "".join([cfg.model.model_name, "-{epoch:02d}-{val_loss:.3f}-{val_acc:.3f}-{val_f1:.3f}"])
 
-    if CFG.MIXED_PREC is True:
-        logger.info("Enable half precision")
-        precision = 16
-
-    fer_model = FERPLModel()
-
-    arch_name = CFG.model_name
-
-    checkpoint_callback = ModelCheckpoint(
-        filename="".join([arch_name, "-{epoch:02d}-{val_loss:.3f}-{val_acc:.3f}-{val_f1:.3f}"]),
-        monitor="val_f1",
-        mode="max",
-        save_weights_only=True,
-    )
-    early_stopping_callback = EarlyStopping(monitor="val_loss", strict=True, mode="min", patience=CFG.early_stopping)
+    checkpoint_callback = ModelCheckpoint(filename=filename, **cfg.callbacks.model_checkpoint.params)
+    early_stopping_callback = EarlyStopping(**cfg.callbacks.early_stopping.params)
     lr_monitor_checkpoint = LearningRateMonitor(logging_interval="epoch")
 
     trainer = Trainer(
-        callbacks=[checkpoint_callback, early_stopping_callback, lr_monitor_checkpoint],
-        max_epochs=CFG.epochs,
-        strategy="ddp",
-        accelerator="gpu",
-        devices=[0, 1],
-        precision=precision,
-        default_root_dir=logger_path,
-        resume_from_checkpoint=CFG.chk,
+        callbacks=[checkpoint_callback, early_stopping_callback, lr_monitor_checkpoint], **cfg.trainer.trainer_params
     )
 
     trainer.fit(model=fer_model, train_dataloaders=train_loader, val_dataloaders=valid_loader)
 
 
+@hydra.main(config_path="conf", config_name="config")
+def run(cfg: DictConfig) -> None:
+    run_trainer(cfg)
+
+
 if __name__ == "__main__":
-    main()
+    run()

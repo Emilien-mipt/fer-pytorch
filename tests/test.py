@@ -3,6 +3,8 @@ import cv2
 from fer_pytorch.fer import FER
 
 fer = FER()
+print(fer.device)
+
 fer.get_pretrained_model(model_name="resnet34")
 
 frame = cv2.imread("tests/test_images/happy.jpg")

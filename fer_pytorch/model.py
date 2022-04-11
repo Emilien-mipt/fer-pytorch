@@ -2,13 +2,11 @@ import timm
 import torch
 import torch.nn as nn
 
-from fer_pytorch.config import CFG
-
 
 class FERModel(nn.Module):
-    def __init__(self, model_arch: str = CFG.model_name, pretrained: bool = CFG.pretrained):
+    def __init__(self, model_arch: str, pretrained: bool, num_classes: int = 7):
         super().__init__()
-        self.model = timm.create_model(model_arch, pretrained=pretrained, num_classes=CFG.target_size)
+        self.model = timm.create_model(model_arch, pretrained=pretrained, num_classes=num_classes)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.model(x)

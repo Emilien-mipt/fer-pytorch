@@ -6,14 +6,13 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
-from fer_pytorch.config import CFG
-
 
 class FERDataset(Dataset):
-    def __init__(self, df: pd.DataFrame, mode: str, transform: A.Compose) -> None:
+    def __init__(self, df: pd.DataFrame, path_to_dataset: str, mode: str, transform: A.Compose) -> None:
         self.df = df
         self.file_names = df["image_id"].values
         self.labels = df["label"].values
+        self.dataset_path = path_to_dataset
         self.mode = mode
         self.transform = transform
 
@@ -24,11 +23,11 @@ class FERDataset(Dataset):
         file_name = self.file_names[idx]
         # Select mode
         if self.mode == "train":
-            file_path = f"{CFG.TRAIN_PATH}/{file_name}"
+            file_path = f"{self.dataset_path}/data/FER2013Train/{file_name}"
         elif self.mode == "valid":
-            file_path = f"{CFG.VAL_PATH}/{file_name}"
+            file_path = f"{self.dataset_path}/data/FER2013Valid/{file_name}"
         elif self.mode == "test":
-            file_path = f"{CFG.TEST_PATH}/{file_name}"
+            file_path = f"{self.dataset_path}/data/FER2013Test/{file_name}"
         else:
             raise ValueError("Wrong data mode! Please choose train, valid or test mode.")
         # Read images

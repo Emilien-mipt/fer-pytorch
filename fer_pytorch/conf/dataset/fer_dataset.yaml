@@ -1,0 +1,19 @@
+name: fer_dataset
+
+path_to_dataset: fer_pytorch/dataset/
+train_csv: new_train.csv
+val_csv: new_val.csv
+test_csv: new_test.csv
+
+target_size: 7
+target_col: "label"
+
+size: 224
+mean:
+  - 0.485
+  - 0.456
+  - 0.406
+std:
+  - 0.229
+  - 0.224
+  - 0.225

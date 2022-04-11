@@ -1,0 +1,2 @@
+model_name: "resnet34"
+pretrained: True
