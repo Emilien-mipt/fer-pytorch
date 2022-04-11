@@ -1,4 +1,6 @@
-from fer_pytorch.config import CFG
+from pathlib import Path
 
-with open(CFG.PACKAGE_DIR / "VERSION") as version_file:
+PACKAGE_DIR = Path(__file__).resolve().parent
+
+with open(PACKAGE_DIR / "VERSION") as version_file:
     __version__ = version_file.read().strip()
