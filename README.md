@@ -3,6 +3,12 @@ FER-pytorch
 
 Facial expression recognition package built on Pytorch and FER+ dataset from Microsoft.
 
+[![PyPI version](https://badge.fury.io/py/fer-pytorch.svg)](https://badge.fury.io/py/fer-pytorch)
+![CI](https://github.com/albumentations-team/albumentations/workflows/CI/badge.svg)
+[![Downloads](https://pepy.tech/badge/fer-pytorch)](https://pepy.tech/project/fer-pytorch)
+
+![dicaprio_result](https://user-images.githubusercontent.com/44554040/163209336-198e3db3-a84f-4d81-9156-19177bba7808.png)
+
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1_sTDVvK-673CKyYQP7gsViCkO8eBa9jd?usp=sharing)
 
 ## Installation
@@ -34,7 +40,7 @@ Training with default parameter values:
 `python fer_pytorch/run_trainer.py`
 
 Thanks to Hydra all the parameters set in config files can be changed
-directly from the command line while running the script.
+directly from the command line while running the script:
 
 * Example with change of model from resnet34 to resnet18:
   * `python fer_pytorch/run_trainer.py model.model_name="resnet18"`
@@ -68,6 +74,7 @@ page of the package and initialize the model automatically. The list of availabl
 that are stored locally with this option.
 
 ### Inference on an image
+* Basic prediction
 ```
 img = cv2.imread("tests/test_images/happy.jpg")
 result = fer.predict_image(img)
@@ -79,7 +86,7 @@ Sample output:
 'emotions': {'neutral': 0.00033704843, 'happiness': 0.98931086, 'surprise': 0.00018355528, 'sadness': 0.0026534477, 'anger': 0.0054451805, 'disgust': 0.0019571118, 'fear': 0.000112833266}}]
 ```
 
-Get only top emotion:
+* Get only top emotion:
 
 `result = fer.predict_image(frame, show_top=True)`
 
@@ -87,7 +94,7 @@ Sample output:
 
 `[{'box': [295.90848, 87.36073, 463.75354, 296.00055], 'top_emotion': {'happiness': 0.98931086}}]`
 
-In order to save output image, just set the output path:
+* In order to save output image, just set the output path:
 
 `result = fer.predict_image(frame, show_top=True, path_to_output="result.jpg")`
 
