@@ -11,10 +11,10 @@ Facial expression recognition package built on Pytorch and [FER+ dataset from Mi
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1_sTDVvK-673CKyYQP7gsViCkO8eBa9jd?usp=sharing)
 
-## Installation
+# Installation
 `pip install fer-pytorch`
 
-## Training
+# Training
 Training is done using the synergy of [Pytorch Lightning](https://www.pytorchlightning.ai/) and
 [Hydra](https://hydra.cc/docs/intro/) packages for setting training loops and configs correspondingly.
 In order to run training you should clone the repo and
@@ -60,7 +60,8 @@ the path to output, run
 `python fer_pytorch/run_trainer.py hydra.run.dir=path_to_output`
 
 
-## Inference
+# Inference
+
 ### Import inference class
 ```
 import cv2
