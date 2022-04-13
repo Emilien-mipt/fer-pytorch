@@ -65,7 +65,7 @@ class FER:
         self.model.eval()
 
     def predict_image(
-        self, frame: Optional[np.array], show_top: bool = False, path_to_output: Optional[str] = None
+        self, frame: Optional[np.ndarray], show_top: bool = False, path_to_output: Optional[str] = None
     ) -> List[dict]:
         """The method makes the prediction of the FER model on a single image.
 
