@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 
 # Package meta-data.
 NAME = "fer-pytorch"
-DESCRIPTION = "Facial Expression Recognition package, implemented in Pytorch."
+DESCRIPTION = "Facial Expression Recognition package implemented in Pytorch."
 URL = "https://github.com/Emilien-mipt/fer-pytorch"
 EMAIL = "emin.tagiev@phystech.edu"
 AUTHOR = "Emin Tagiev"
@@ -29,11 +29,17 @@ def list_reqs(fname: str = "requirements.txt") -> List[str]:
         return fd.read().splitlines()
 
 
+def get_long_description() -> str:
+    base_dir = ROOT_DIR
+    with (base_dir / "README.md").open(encoding="utf-8") as f:
+        return f.read()
+
+
 setup(
     name=NAME,
     version=about["__version__"],
     description=DESCRIPTION,
-    long_description=long_description,
+    long_description=get_long_description(),
     long_description_content_type="text/markdown",
     author=AUTHOR,
     author_email=EMAIL,

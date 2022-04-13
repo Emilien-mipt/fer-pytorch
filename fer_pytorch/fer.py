@@ -39,7 +39,7 @@ class FER:
         self.mtcnn = MTCNN(keep_all=True, select_largest=True, device=self.device)
 
     def get_pretrained_model(self, model_name: str) -> None:
-        """The method initializes the FER model and uploads the pretrained weights from the internet.
+        """The method initializes the FER model and uploads the pretrained weights from the github page of the project.
 
         Args:
             model_name (str): The name that stands for the weights to be downloaded from the internet. The name
@@ -65,7 +65,7 @@ class FER:
         self.model.eval()
 
     def predict_image(
-        self, frame: Optional[np.array], show_top: bool = False, path_to_output: Optional[str] = None
+        self, frame: Optional[np.ndarray], show_top: bool = False, path_to_output: Optional[str] = None
     ) -> List[dict]:
         """The method makes the prediction of the FER model on a single image.
 
@@ -86,9 +86,7 @@ class FER:
                 transforms.Resize(self.size),
                 transforms.ToTensor(),
                 transforms.Lambda(lambda t: t.repeat(3, 1, 1)),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]  # ImageNet values  # ImageNet values
-                ),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # ImageNet values
             ]
         )
 
@@ -326,6 +324,12 @@ class FER:
     ) -> Dict[str, Any]:
         """The method is intended for convenient calculation of metrics (accuracy and f1 score) on the test part of the
         FER dataset.
+
+        Args:
+            path_to_dataset (str): Path to the folder with FER+ dataset.
+            path_to_csv (str): Path to the csv file with labels for the test part.
+            batch_size (int): Batch size for inference on the test part.
+            num_workers (int): Number of workers to use while inference.
 
         Returns:
             The dictionary with accuracy and f1 score values.

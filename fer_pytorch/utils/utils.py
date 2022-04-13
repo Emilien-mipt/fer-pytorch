@@ -29,9 +29,7 @@ def load_obj(obj_path: str, default_obj_path: str = "") -> Any:
     return getattr(module_obj, obj_name)
 
 
-def save_input(
-    input_tensor: torch.Tensor, title: str, fig_path: str, index: int, mean: List[float], std: List[float]
-) -> None:
+def save_input(input_tensor: torch.Tensor, title: str, fig_path: str, index: int, mean: Any, std: Any) -> None:
     """Show a single image."""
     mean = np.array(mean)
     std = np.array(std)
