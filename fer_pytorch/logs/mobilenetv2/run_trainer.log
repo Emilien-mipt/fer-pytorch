@@ -1,0 +1,2 @@
+[2022-04-29 14:03:44,654][timm.models.helpers][INFO] - Loading pretrained weights from url (https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/mobilenetv2_140_ra-21a4e913.pth)
+[2022-04-29 14:03:44,732][root][INFO] - Added key: store_based_barrier_key:1 to store for rank: 0
