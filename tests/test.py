@@ -11,7 +11,7 @@ frame = cv2.imread("tests/test_images/happy.jpg")
 result = fer.predict_image(frame)
 print(result)
 
-result = fer.predict_image(frame, show_top=True)
+result = fer.predict_image(frame, show_top=True, path_to_output="./happy_output.jpg")
 print(result)
 
 result_json_list = fer.predict_list_images(
