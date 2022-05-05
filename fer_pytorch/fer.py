@@ -106,7 +106,8 @@ class FER:
                 image_tensor = image.unsqueeze_(0)
                 input = image_tensor.to(self.device)
                 if self.model is not None:
-                    output = self.model(input)
+                    with torch.no_grad():
+                        output = self.model(input)
                 else:
                     raise TypeError("Nonetype is not callable! Please, initialize the model and upload the weights.")
                 probs = torch.nn.functional.softmax(output, dim=1).data.cpu().numpy()
@@ -135,16 +136,7 @@ class FER:
                     )
 
                 if path_to_output is not None:
-                    cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (255, 0, 0), 2)
-                    cv2.putText(
-                        frame,
-                        f"{emotion_dict[probs[0].argmax()]}: {np.amax(probs[0]):.2f}",
-                        (int(x), int(y - 5)),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1.0,
-                        (0, 0, 255.0),
-                        2,
-                    )
+                    self.visualize(frame, [x, y, w, h], emotion_dict[probs[0].argmax()], np.amax(probs[0]))
                     cv2.imwrite(path_to_output, frame)
         else:
             warnings.warn("No faces detected!")
@@ -191,7 +183,7 @@ class FER:
 
             output_list = self.predict_image(frame, show_top=True, path_to_output=path_to_output_file)
 
-            result_dict = self._preprocess_output_list(output_list, result_dict)
+            result_dict = self.preprocess_output_list(output_list, result_dict)
             result_list.append(result_dict)
 
         result_json = json.dumps(result_list, allow_nan=True, indent=4)
@@ -245,20 +237,12 @@ class FER:
             output_list = self.predict_image(frame, show_top=True)
 
             result_dict = {"frame_id": f"{i}"}
-            result_dict = self._preprocess_output_list(output_list, result_dict)
+            result_dict = self.preprocess_output_list(output_list, result_dict)
             result_list.append(result_dict)
 
             if output_list:
-                x, y, w, h = result_dict["box"][0], result_dict["box"][1], result_dict["box"][2], result_dict["box"][3]
-                cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (255, 0, 0), 2)
-                cv2.putText(
-                    frame,
-                    f"{result_dict['emotion']}: {result_dict['probability']}",
-                    (int(x), int(y) - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1.0,
-                    (0, 0, 255.0),
-                    2,
+                self.visualize(
+                    frame, result_dict["box"], result_dict["emotion"], result_dict["probability"]  # type: ignore
                 )
 
             frame_array.append(frame)
@@ -294,20 +278,10 @@ class FER:
 
             output_list = self.predict_image(frame, show_top=True)
 
-            result_dict = self._preprocess_output_list(output_list, result_dict)
+            result_dict = self.preprocess_output_list(output_list, result_dict)
 
             if output_list:
-                x, y, w, h = result_dict["box"][0], result_dict["box"][1], result_dict["box"][2], result_dict["box"][3]
-                cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (255, 0, 0), 2)
-                cv2.putText(
-                    frame,
-                    f"{result_dict['emotion']}: {result_dict['probability']}",
-                    (int(x), int(y - 5)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1.0,
-                    (0, 0, 255.0),
-                    2,
-                )
+                self.visualize(frame, result_dict["box"], result_dict["emotion"], result_dict["probability"])
 
             cv2.imshow("frame", frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -391,7 +365,7 @@ class FER:
         return pd.read_json(json_file, orient="records")
 
     @staticmethod
-    def _preprocess_output_list(output_list: list, result_dict: dict) -> dict:
+    def preprocess_output_list(output_list: list, result_dict: dict) -> dict:
         """The method is intended to process output list with recognition results to make it more convenient to save
         them in json format.
 
@@ -413,3 +387,30 @@ class FER:
             result_dict["emotion"] = ""
             result_dict["probability"] = np.nan
         return result_dict
+
+    @staticmethod
+    def visualize(frame: Optional[np.ndarray], box_coordinates: List[float], emotion: str, prob: float) -> None:
+        """The function for easy visualization.
+
+        Args:
+            frame (Optional[np.ndarray]): Input frame.
+            box_coordinates (list): The list with face box coordinates.
+            emotion (str): Emotion output class from the fer model.
+            prob (float): Emotion output probability from the fer model.
+        """
+        x, y, w, h = (
+            box_coordinates[0],
+            box_coordinates[1],
+            box_coordinates[2],
+            box_coordinates[3],
+        )
+        cv2.rectangle(frame, (int(x), int(y)), (int(w), int(h)), (255, 0, 0), 2)
+        cv2.putText(
+            frame,
+            f"{emotion}: {prob:.2f}",
+            (int(x), int(y - 5)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1.0,
+            (0, 0, 255.0),
+            2,
+        )
