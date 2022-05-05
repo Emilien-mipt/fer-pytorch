@@ -31,7 +31,7 @@ to run the code from the root. You can check the PYTHONPATH with `echo $PYTHONPA
 ### Download data
 `bash get_data.sh`
 
-This bash command will download the archive with the data and unpack it into the necessary directories in such a way 
+This bash command will download the archive with the data and unpack it into the necessary directories in such a way
 that everything is ready for training.
 
 ### Define config
@@ -162,3 +162,11 @@ Output:
 To run the model on the stream from the web camera and show the results in real-time just run
 
 `fer.run_webcam()`
+
+# Web application
+In order to demonstrate the fer-pytorch package the web application has been developed
+using [Streamlit](https://streamlit.io/) and deployed to [Heroku](heroku.com) via Docker image.
+
+Link to the github page of the app: https://github.com/Emilien-mipt/fer-webapp
+
+Link to the app: https://ferpytorch-webapp.herokuapp.com/

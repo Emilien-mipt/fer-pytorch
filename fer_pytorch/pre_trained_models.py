@@ -11,7 +11,12 @@ models = {
         url="https://github.com/Emilien-mipt/fer-pytorch/releases/download/0.0.1/"
         "resnet34-epoch.12-val_loss.0.494-val_acc.0.846-val_f1.0.843.ckpt",
         model=FERModel,
-    )
+    ),
+    "mobilenetv2_140": model(
+        url="https://github.com/Emilien-mipt/fer-pytorch/releases/download/1.0.1/"
+        "mobilenetv2_140-epoch.12-val_loss.0.629-val_acc.0.827-val_f1.0.825.ckpt",
+        model=FERModel,
+    ),
 }
 
 

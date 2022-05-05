@@ -1,4 +1,4 @@
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Union
 
 import pytorch_lightning as pl
 import torch
@@ -32,11 +32,14 @@ class FERPLModel(pl.LightningModule):
     def forward(self, x: torch.Tensor):  # type: ignore
         return self.model(x)
 
-    def configure_optimizers(self) -> Tuple[List[Any], List[Any]]:
+    def configure_optimizers(self) -> Union[Tuple[List[Any], List[Any]], List[Any]]:
         optimizer = load_obj(self.cfg.optimizer.class_name)(self.model.parameters(), **self.cfg.optimizer.params)
-        lr_scheduler = load_obj(self.cfg.scheduler.class_name)(optimizer, **self.cfg.scheduler.params)
-        scheduler = {"scheduler": lr_scheduler, "interval": "step"}
-        return [optimizer], [scheduler]
+        if self.cfg.scheduler.class_name is not None:
+            lr_scheduler = load_obj(self.cfg.scheduler.class_name)(optimizer, **self.cfg.scheduler.params)
+            scheduler = {"scheduler": lr_scheduler, "interval": "step"}
+            return [optimizer], [scheduler]
+        else:
+            return [optimizer]
 
     def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int):  # type: ignore
         images, labels = batch
