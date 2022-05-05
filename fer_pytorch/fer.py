@@ -106,7 +106,8 @@ class FER:
                 image_tensor = image.unsqueeze_(0)
                 input = image_tensor.to(self.device)
                 if self.model is not None:
-                    output = self.model(input)
+                    with torch.no_grad():
+                        output = self.model(input)
                 else:
                     raise TypeError("Nonetype is not callable! Please, initialize the model and upload the weights.")
                 probs = torch.nn.functional.softmax(output, dim=1).data.cpu().numpy()
