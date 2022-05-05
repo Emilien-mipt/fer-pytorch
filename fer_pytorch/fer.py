@@ -192,7 +192,7 @@ class FER:
 
             output_list = self.predict_image(frame, show_top=True, path_to_output=path_to_output_file)
 
-            result_dict = self._preprocess_output_list(output_list, result_dict)
+            result_dict = self.preprocess_output_list(output_list, result_dict)
             result_list.append(result_dict)
 
         result_json = json.dumps(result_list, allow_nan=True, indent=4)
@@ -246,7 +246,7 @@ class FER:
             output_list = self.predict_image(frame, show_top=True)
 
             result_dict = {"frame_id": f"{i}"}
-            result_dict = self._preprocess_output_list(output_list, result_dict)
+            result_dict = self.preprocess_output_list(output_list, result_dict)
             result_list.append(result_dict)
 
             if output_list:
@@ -295,7 +295,7 @@ class FER:
 
             output_list = self.predict_image(frame, show_top=True)
 
-            result_dict = self._preprocess_output_list(output_list, result_dict)
+            result_dict = self.preprocess_output_list(output_list, result_dict)
 
             if output_list:
                 x, y, w, h = result_dict["box"][0], result_dict["box"][1], result_dict["box"][2], result_dict["box"][3]
@@ -392,7 +392,7 @@ class FER:
         return pd.read_json(json_file, orient="records")
 
     @staticmethod
-    def _preprocess_output_list(output_list: list, result_dict: dict) -> dict:
+    def preprocess_output_list(output_list: list, result_dict: dict) -> dict:
         """The method is intended to process output list with recognition results to make it more convenient to save
         them in json format.
 
