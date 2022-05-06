@@ -134,12 +134,11 @@ class FER:
                             },
                         }
                     )
-
-                if path_to_output is not None:
-                    self.visualize(frame, [x, y, w, h], emotion_dict[probs[0].argmax()], np.amax(probs[0]))
-                    cv2.imwrite(path_to_output, frame)
+                self.visualize(frame, [x, y, w, h], emotion_dict[probs[0].argmax()], np.amax(probs[0]))
         else:
             warnings.warn("No faces detected!")
+        if path_to_output is not None:
+            cv2.imwrite(path_to_output, frame)
         return result_list
 
     def predict_list_images(
