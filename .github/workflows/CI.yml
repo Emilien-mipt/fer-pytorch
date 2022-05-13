@@ -34,11 +34,7 @@ jobs:
       run: flake8
     - name: Run Mypy
       run: mypy fer_pytorch
-    - name: test resnet34
+    - name: Run tests
       run: |
         pip install .[tests]
-        pytest --ignore=./tests/test_resnet34/test_analyze_video.py tests/test_resnet34
-    - name: test mobilenetv2
-      run: |
-        pip install .[tests]
-        pytest --ignore=./tests/test_mobilenetv2_140/test_analyze_video.py tests/test_mobilenetv2_140
+        pytest -v -s --ignore=./tests/test_analyze_video.py --ignore=./tests/test_fer.py tests/
