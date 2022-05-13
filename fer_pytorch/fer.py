@@ -252,7 +252,7 @@ class FER:
         with open(path_to_json, "w") as f:
             f.write(result_json)
 
-        if save_video is not None:
+        if save_video:
             path_to_video = os.path.join(path_to_output, filename)
             out = cv2.VideoWriter(path_to_video, cv2.VideoWriter_fourcc(*"DIVX"), fps, size)
             print("Writing videofile...")
