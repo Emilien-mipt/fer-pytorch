@@ -4,8 +4,8 @@ import pytest
 
 PATH_HAPPY = "tests/test_images/happy.jpg"
 PATH_SURPRIZE = "tests/test_images/surprize.jpg"
-
 PATH_NOFACE = "tests/test_images/no_face.jpg"
+PATH_MULTI = "tests/test_images/multi.jpg"
 
 
 @pytest.mark.parametrize("fer", ["resnet34", "mobilenetv2_140"], indirect=True)
@@ -93,3 +93,21 @@ def test_surprize(fer):
         sum_probs += value
 
     np.testing.assert_almost_equal(1.0, sum_probs, decimal=3)
+
+
+@pytest.mark.parametrize("fer", ["resnet34", "mobilenetv2_140"], indirect=True)
+def test_multi(fer):
+    multi_img = cv2.imread(PATH_MULTI)
+    result_multi = fer.predict_image(multi_img, show_top=True)
+
+    assert len(result_multi) == 2
+    assert isinstance(result_multi, list)
+    assert all(isinstance(result, dict) for result in result_multi)
+
+    neutral_dict = result_multi[0]
+    happy_dict = result_multi[1]
+
+    np.testing.assert_almost_equal(neutral_dict["box"], [75.1005, 24.66243, 115.62831, 79.85703], decimal=1)
+    np.testing.assert_almost_equal(happy_dict["box"], [165.5209, 48.91686, 203.69823, 97.520325], decimal=1)
+    assert next(iter(neutral_dict["top_emotion"].values())) > 0.9
+    assert next(iter(happy_dict["top_emotion"].values())) > 0.9
