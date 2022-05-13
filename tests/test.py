@@ -14,6 +14,11 @@ print(result)
 result = fer.predict_image(frame, show_top=True, path_to_output="./happy_output.jpg")
 print(result)
 
+# Test multi
+frame = cv2.imread("tests/test_images/multi.jpg")
+result = fer.predict_image(frame, show_top=True, path_to_output="./multi.jpg")
+print(result)
+
 result_json_list = fer.predict_list_images(
     path_to_input="./tests/test_images", path_to_output="./tests/output_images", save_images=True
 )

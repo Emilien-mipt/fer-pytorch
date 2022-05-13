@@ -105,6 +105,15 @@ Sample output:
 
 `result = fer.predict_image(frame, show_top=True, path_to_output="result.jpg")`
 
+### Note
+If there is more than one person on an image, this method will provide the results for all,
+whose faces are detected by the MTCNN detector. However, this is not the case for the methods
+described below (for list of images and video files). Instead, the inference methods for the list
+of images ad video files will return results for people with the largest bounding box around
+their faces. It is made for convenience and performance purposes since the mentioned methods
+output the json file with the results, so it would be necessary to track the people to
+produce the correct json files for corresponding detected people.
+
 ### Inference on a list of images
 Inference on a folder with images:
 ```

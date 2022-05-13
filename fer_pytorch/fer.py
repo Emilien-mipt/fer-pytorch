@@ -134,12 +134,11 @@ class FER:
                             },
                         }
                     )
-
-                if path_to_output is not None:
-                    self.visualize(frame, [x, y, w, h], emotion_dict[probs[0].argmax()], np.amax(probs[0]))
-                    cv2.imwrite(path_to_output, frame)
+                self.visualize(frame, [x, y, w, h], emotion_dict[probs[0].argmax()], np.amax(probs[0]))
         else:
             warnings.warn("No faces detected!")
+        if path_to_output is not None:
+            cv2.imwrite(path_to_output, frame)
         return result_list
 
     def predict_list_images(
@@ -253,7 +252,7 @@ class FER:
         with open(path_to_json, "w") as f:
             f.write(result_json)
 
-        if save_video is not None:
+        if save_video:
             path_to_video = os.path.join(path_to_output, filename)
             out = cv2.VideoWriter(path_to_video, cv2.VideoWriter_fourcc(*"DIVX"), fps, size)
             print("Writing videofile...")
