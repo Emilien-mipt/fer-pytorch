@@ -1,14 +1,12 @@
 import os
 
-from fer_pytorch.fer import FER
+import pytest
 
-fer = FER()
-fer.get_pretrained_model(model_name="resnet34")
+os.system("sh get_data.sh")
 
 
-def test_fer():
-    os.system("sh get_data.sh")
-
+@pytest.mark.parametrize("fer", ["resnet34", "mobilenetv2_140"], indirect=True)
+def test_fer(fer):
     test_result = fer.test_fer()
 
     assert isinstance(test_result, dict)

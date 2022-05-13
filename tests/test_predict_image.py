@@ -8,7 +8,7 @@ PATH_SURPRIZE = "tests/test_images/surprize.jpg"
 PATH_NOFACE = "tests/test_images/no_face.jpg"
 
 
-@pytest.mark.parametrize("fer", ["resnet34_fer", "mobilenet_fer"], indirect=True)
+@pytest.mark.parametrize("fer", ["resnet34", "mobilenetv2_140"], indirect=True)
 @pytest.mark.parametrize("show_top", ["True", "False"])
 def test_with_face_types(fer, show_top):
     input = cv2.imread(PATH_HAPPY)
@@ -30,7 +30,7 @@ def test_with_face_types(fer, show_top):
     assert isinstance(result_dict["box"], list)
 
 
-@pytest.mark.parametrize("fer", ["resnet34_fer", "mobilenet_fer"], indirect=True)
+@pytest.mark.parametrize("fer", ["resnet34", "mobilenetv2_140"], indirect=True)
 def test_no_face(fer):
     no_face = cv2.imread(PATH_NOFACE)
     result_no_face = fer.predict_image(no_face)
@@ -39,7 +39,7 @@ def test_no_face(fer):
     assert len(result_no_face) == 0
 
 
-@pytest.mark.parametrize("fer", ["resnet34_fer", "mobilenet_fer"], indirect=True)
+@pytest.mark.parametrize("fer", ["resnet34", "mobilenetv2_140"], indirect=True)
 def test_happy_values(fer):
     input = cv2.imread(PATH_HAPPY)
 
@@ -67,7 +67,7 @@ def test_happy_values(fer):
     np.testing.assert_almost_equal(1.0, sum_probs, decimal=3)
 
 
-@pytest.mark.parametrize("fer", ["resnet34_fer", "mobilenet_fer"], indirect=True)
+@pytest.mark.parametrize("fer", ["resnet34", "mobilenetv2_140"], indirect=True)
 def test_surprize(fer):
     input = cv2.imread(PATH_SURPRIZE)
 

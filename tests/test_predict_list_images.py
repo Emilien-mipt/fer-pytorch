@@ -2,16 +2,15 @@ import os
 import shutil
 
 import numpy as np
+import pytest
 
 from fer_pytorch.fer import FER
 
 PATH_TO_FOLDER = "tests/test_images/"
 
-fer = FER()
-fer.get_pretrained_model(model_name="resnet34")
 
-
-def test_predict_list_images():
+@pytest.mark.parametrize("fer", ["resnet34", "mobilenetv2_140"], indirect=True)
+def test_predict_list_images(fer):
     output_dir = "tests/testing_list_images"
     result_list = fer.predict_list_images(PATH_TO_FOLDER, output_dir)
 
