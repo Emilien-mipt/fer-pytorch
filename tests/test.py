@@ -5,7 +5,9 @@ from fer_pytorch.fer import FER
 fer = FER()
 print(fer.device)
 
-fer.get_pretrained_model(model_name="mobilenetv2_140")
+fer.get_pretrained_model(model_name="resnet34")
+
+fer.run_webcam()
 
 frame = cv2.imread("tests/test_images/happy.jpg")
 result = fer.predict_image(frame)

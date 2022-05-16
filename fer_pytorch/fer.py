@@ -20,6 +20,8 @@ from fer_pytorch.model import FERModel
 from fer_pytorch.pre_trained_models import get_pretrained_model
 from fer_pytorch.train_test_dataset import FERDataset
 
+warnings.simplefilter(action="always")
+
 emotion_dict = {0: "neutral", 1: "happiness", 2: "surprise", 3: "sadness", 4: "anger", 5: "disgust", 6: "fear"}
 
 
@@ -100,11 +102,16 @@ class FER:
 
         if boxes is not None:
             for (x, y, w, h) in boxes:
+                if not all(coordinate >= 0 for coordinate in (x, y, w, h)):
+                    warnings.warn("Invalid face crop!")
+                    continue
+
                 image = gray[int(y) : int(h), int(x) : int(w)]
                 image = Image.fromarray(image)
                 image = fer_transforms(image).float()
                 image_tensor = image.unsqueeze_(0)
                 input = image_tensor.to(self.device)
+
                 if self.model is not None:
                     with torch.no_grad():
                         output = self.model(input)
