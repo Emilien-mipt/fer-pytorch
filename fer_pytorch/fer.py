@@ -234,17 +234,11 @@ class FER:
             size = (width, height)
 
             output_list = self.predict_image(frame, show_top=True)
+            frame_array.append(frame)
 
             result_dict = {"frame_id": f"{i}"}
             result_dict = self.preprocess_output_list(output_list, result_dict)
             result_list.append(result_dict)
-
-            if output_list:
-                self.visualize(
-                    frame, result_dict["box"], result_dict["emotion"], result_dict["probability"]  # type: ignore
-                )
-
-            frame_array.append(frame)
 
         result_json = json.dumps(result_list, allow_nan=True, indent=4)
         path_to_json = os.path.join(path_to_output, "result.json")
@@ -255,7 +249,7 @@ class FER:
         if save_video:
             path_to_video = os.path.join(path_to_output, filename)
             out = cv2.VideoWriter(path_to_video, cv2.VideoWriter_fourcc(*"DIVX"), fps, size)
-            print("Writing videofile...")
+            print("Writing the output videofile...")
             for i in tqdm(range(len(frame_array))):
                 out.write(frame_array[i])
             out.release()
@@ -267,8 +261,6 @@ class FER:
         cap = cv2.VideoCapture(0)
 
         while True:
-            result_dict: dict = {}
-
             success, frame = cap.read()
 
             if not success:
@@ -276,15 +268,12 @@ class FER:
                 continue
 
             output_list = self.predict_image(frame, show_top=True)
-
-            result_dict = self.preprocess_output_list(output_list, result_dict)
-
-            if output_list:
-                self.visualize(frame, result_dict["box"], result_dict["emotion"], result_dict["probability"])
+            print(output_list)
 
             cv2.imshow("frame", frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
+
         cap.release()
         cv2.destroyAllWindows()
 
