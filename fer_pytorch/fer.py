@@ -20,7 +20,9 @@ from fer_pytorch.model import FERModel
 from fer_pytorch.pre_trained_models import get_pretrained_model
 from fer_pytorch.train_test_dataset import FERDataset
 
-emotion_dict = {0: "neutral", 1: "happiness", 2: "surprise", 3: "sadness", 4: "anger", 5: "disgust", 6: "fear"}
+warnings.simplefilter(action="always")
+
+EMOTION_DICT = {0: "neutral", 1: "happiness", 2: "surprise", 3: "sadness", 4: "anger", 5: "disgust", 6: "fear"}
 
 
 class FER:
@@ -100,11 +102,16 @@ class FER:
 
         if boxes is not None:
             for (x, y, w, h) in boxes:
+                if not all(coordinate >= 0 for coordinate in (x, y, w, h)):
+                    warnings.warn("Invalid face crop!")
+                    continue
+
                 image = gray[int(y) : int(h), int(x) : int(w)]
                 image = Image.fromarray(image)
                 image = fer_transforms(image).float()
                 image_tensor = image.unsqueeze_(0)
                 input = image_tensor.to(self.device)
+
                 if self.model is not None:
                     with torch.no_grad():
                         output = self.model(input)
@@ -116,7 +123,7 @@ class FER:
                     result_list.append(
                         {
                             "box": [x, y, w, h],
-                            "top_emotion": {emotion_dict[probs[0].argmax()]: np.amax(probs[0])},
+                            "top_emotion": {EMOTION_DICT[probs[0].argmax()]: np.amax(probs[0])},
                         }
                     )
                 else:
@@ -124,17 +131,17 @@ class FER:
                         {
                             "box": [x, y, w, h],
                             "emotions": {
-                                emotion_dict[0]: probs[0, 0],
-                                emotion_dict[1]: probs[0, 1],
-                                emotion_dict[2]: probs[0, 2],
-                                emotion_dict[3]: probs[0, 3],
-                                emotion_dict[4]: probs[0, 4],
-                                emotion_dict[5]: probs[0, 5],
-                                emotion_dict[6]: probs[0, 6],
+                                EMOTION_DICT[0]: probs[0, 0],
+                                EMOTION_DICT[1]: probs[0, 1],
+                                EMOTION_DICT[2]: probs[0, 2],
+                                EMOTION_DICT[3]: probs[0, 3],
+                                EMOTION_DICT[4]: probs[0, 4],
+                                EMOTION_DICT[5]: probs[0, 5],
+                                EMOTION_DICT[6]: probs[0, 6],
                             },
                         }
                     )
-                self.visualize(frame, [x, y, w, h], emotion_dict[probs[0].argmax()], np.amax(probs[0]))
+                self.visualize(frame, [x, y, w, h], EMOTION_DICT[probs[0].argmax()], np.amax(probs[0]))
         else:
             warnings.warn("No faces detected!")
         if path_to_output is not None:
@@ -234,17 +241,11 @@ class FER:
             size = (width, height)
 
             output_list = self.predict_image(frame, show_top=True)
+            frame_array.append(frame)
 
             result_dict = {"frame_id": f"{i}"}
             result_dict = self.preprocess_output_list(output_list, result_dict)
             result_list.append(result_dict)
-
-            if output_list:
-                self.visualize(
-                    frame, result_dict["box"], result_dict["emotion"], result_dict["probability"]  # type: ignore
-                )
-
-            frame_array.append(frame)
 
         result_json = json.dumps(result_list, allow_nan=True, indent=4)
         path_to_json = os.path.join(path_to_output, "result.json")
@@ -255,7 +256,7 @@ class FER:
         if save_video:
             path_to_video = os.path.join(path_to_output, filename)
             out = cv2.VideoWriter(path_to_video, cv2.VideoWriter_fourcc(*"DIVX"), fps, size)
-            print("Writing videofile...")
+            print("Writing the output videofile...")
             for i in tqdm(range(len(frame_array))):
                 out.write(frame_array[i])
             out.release()
@@ -267,8 +268,6 @@ class FER:
         cap = cv2.VideoCapture(0)
 
         while True:
-            result_dict: dict = {}
-
             success, frame = cap.read()
 
             if not success:
@@ -276,15 +275,12 @@ class FER:
                 continue
 
             output_list = self.predict_image(frame, show_top=True)
-
-            result_dict = self.preprocess_output_list(output_list, result_dict)
-
-            if output_list:
-                self.visualize(frame, result_dict["box"], result_dict["emotion"], result_dict["probability"])
+            print(output_list)
 
             cv2.imshow("frame", frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
+
         cap.release()
         cv2.destroyAllWindows()
 
