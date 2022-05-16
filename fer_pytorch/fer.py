@@ -22,7 +22,7 @@ from fer_pytorch.train_test_dataset import FERDataset
 
 warnings.simplefilter(action="always")
 
-emotion_dict = {0: "neutral", 1: "happiness", 2: "surprise", 3: "sadness", 4: "anger", 5: "disgust", 6: "fear"}
+EMOTION_DICT = {0: "neutral", 1: "happiness", 2: "surprise", 3: "sadness", 4: "anger", 5: "disgust", 6: "fear"}
 
 
 class FER:
@@ -123,7 +123,7 @@ class FER:
                     result_list.append(
                         {
                             "box": [x, y, w, h],
-                            "top_emotion": {emotion_dict[probs[0].argmax()]: np.amax(probs[0])},
+                            "top_emotion": {EMOTION_DICT[probs[0].argmax()]: np.amax(probs[0])},
                         }
                     )
                 else:
@@ -131,17 +131,17 @@ class FER:
                         {
                             "box": [x, y, w, h],
                             "emotions": {
-                                emotion_dict[0]: probs[0, 0],
-                                emotion_dict[1]: probs[0, 1],
-                                emotion_dict[2]: probs[0, 2],
-                                emotion_dict[3]: probs[0, 3],
-                                emotion_dict[4]: probs[0, 4],
-                                emotion_dict[5]: probs[0, 5],
-                                emotion_dict[6]: probs[0, 6],
+                                EMOTION_DICT[0]: probs[0, 0],
+                                EMOTION_DICT[1]: probs[0, 1],
+                                EMOTION_DICT[2]: probs[0, 2],
+                                EMOTION_DICT[3]: probs[0, 3],
+                                EMOTION_DICT[4]: probs[0, 4],
+                                EMOTION_DICT[5]: probs[0, 5],
+                                EMOTION_DICT[6]: probs[0, 6],
                             },
                         }
                     )
-                self.visualize(frame, [x, y, w, h], emotion_dict[probs[0].argmax()], np.amax(probs[0]))
+                self.visualize(frame, [x, y, w, h], EMOTION_DICT[probs[0].argmax()], np.amax(probs[0]))
         else:
             warnings.warn("No faces detected!")
         if path_to_output is not None:
