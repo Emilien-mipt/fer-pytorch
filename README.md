@@ -9,7 +9,7 @@ Facial expression recognition package built on Pytorch and [FER+ dataset from Mi
 
 ![dicaprio_result](https://user-images.githubusercontent.com/44554040/163209336-198e3db3-a84f-4d81-9156-19177bba7808.png)
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1_sTDVvK-673CKyYQP7gsViCkO8eBa9jd?usp=sharing)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12OPYO6tqnjY3czDuijaDkq_ld2InJ9mw?usp=sharing)
 
 # Installation
 `pip install fer-pytorch`
